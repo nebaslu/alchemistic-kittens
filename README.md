@@ -23,20 +23,27 @@ PORT=3000 ./run.sh  # en otro puerto local
 
 El contenedor se publica solo en loopback (`127.0.0.1`), no se expone a la red. Ctrl+C detiene y elimina el contenedor (`--rm`).
 
-## Cómo se juega
+## Flujo de menús
 
-- **WASD / flechas**: moverse. **E**: interactuar (mantén E para moler, cortar o limpiar). **Q**: tirar lo que llevas en mano (por si una poción ya no tiene pedido).
-- Coge ingredientes del puesto superior, prepáralos en el **almirez 🥣** (muele) o la **tabla 🔪** (corta), échalos al **caldero 🍲**, espera a que la poción esté lista, sácala (entra en **frasco de cristal 🧪**, no se lava) y entrégala en el **expendedor 🛒** antes de que se acabe el tiempo.
+1. **Login**: usuario y contraseña (demo local: cualquier valor; la sesión se guarda en `localStorage`).
+2. **Menú principal**: Jugar (→ partidas) o Salir (cierra sesión → login).
+3. **Partidas**: rascadores (demo: 1, el 🗼 Rascador de la Torre del Mago) con 3 pantallas cada uno. La primera pantalla está desbloqueada; las siguientes se desbloquean al conseguir **plata 🥈** en la pantalla anterior. Al pulsar una pantalla desbloqueada aparece un **modal** con *Empezar partida* o *Cerrar*. Botón *← Volver* regresa al menú principal.
+4. **Partida**: duración fija de **3 min** (sin vidas). Al acabarse el tiempo → pantalla de resultados.
+5. **Resultados**: rascador con 3 latas de atún (🥉 bronce / 🥈 plata / 🥇 oro) y contadores **N/M** (N = latas ganadas, M = mínimo para esa medalla). Al llegar N = M y seguir creciendo, se llena la siguiente lata; solo la de oro puede superar su M. Abajo: **Volver a jugar** o **Salir** (→ partidas).
+
+## Cómo se juega la partida
+
+- **WASD / flechas**: moverse. **E**: interactuar (mantén E para moler, cortar o limpiar). **Q**: tira lo que llevas en mano.
+- Coge ingredientes del puesto superior, prepáralos en el **almirez 🥣** (muele) o la **tabla 🔪** (corta), échalos al **caldero 🍲**, espera a que la poción esté lista, sácala (entra en **frasco de cristal 🧪**, no se lava) y entrégala en el **expendedor 🛒** antes de que se acabe el tiempo del pedido.
 - **Propina**: segundos restantes × 1.5 latas de atún 🐟 (30 s × 1.5 = 45 🐟).
 - Si mezclas mal o se quema el caldero: **explota 💥** y hay que limpiarlo con la **varita miaugica 🪄**.
-- 3 pedidos expirados = game over. Completa los 3 niveles para ganar.
 
 ## Estructura
 
-- `src/main.ts` — config Phaser (960×640, FIT, pixelArt).
-- `src/scenes/` — BootScene (texturas procedurales), MenuScene, GameScene (lógica), UIScene (HUD), EndScene.
-- `src/game/` — `Player`, `Station`, `Cauldron`, `OrderSystem`, `Fx` (SFX WebAudio + partículas).
-- `src/game/data/` — `ingredients.ts`, `recipes.ts`, `levels.ts` (datos puros, editables).
+- `src/main.ts` — config Phaser (960×640, FIT, pixelArt, DOM para el login).
+- `src/scenes/` — Boot, Login, MainMenu, Partidas (con modal), Game, UIScene (HUD), Results.
+- `src/game/` — `Player`, `Station`, `Cauldron`, `OrderSystem`, `Fx` (SFX WebAudio + partículas), `progress.ts` (sesión y medallas por usuario).
+- `src/game/data/` — `ingredients.ts`, `recipes.ts`, `worlds.ts` (rascadores → pantallas → pedidos, layout y umbrales de medallas; datos puros, editables).
 - `docs/GDD.md` — diseño del juego.
 
 Los assets visuales son procedurales (Graphics de Phaser + emoji) para que la demo no dependa de archivos externos.

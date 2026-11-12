@@ -16,7 +16,7 @@ export class UIScene extends Phaser.Scene {
   private levelText!: Phaser.GameObjects.Text;
   private scoreText!: Phaser.GameObjects.Text;
   private cansText!: Phaser.GameObjects.Text;
-  private heartsText!: Phaser.GameObjects.Text;
+  private timeText!: Phaser.GameObjects.Text;
   private heldText!: Phaser.GameObjects.Text;
   private hintText!: Phaser.GameObjects.Text;
   private progressBg!: Phaser.GameObjects.Graphics;
@@ -34,9 +34,9 @@ export class UIScene extends Phaser.Scene {
 
     this.levelText = this.text(10, 8, '', 14, '#ffd75e');
     this.scoreText = this.text(10, 28, '', 14, '#ffffff');
-    this.cansText = this.text(220, 28, '', 14, '#ffd75e');
-    this.heartsText = this.text(430, 28, '', 14, '#ff8fa3');
-    this.heldText = this.text(650, 8, '', 22, '#ffffff');
+    this.cansText = this.text(200, 28, '', 14, '#ffd75e');
+    this.timeText = this.text(760, 8, '', 22, '#7ee081');
+    this.heldText = this.text(880, 32, '', 14, '#ffffff');
 
     for (let i = 0; i < MAX_ORDER_CARDS; i++) {
       const x = 8 + i * 236;
@@ -74,9 +74,13 @@ export class UIScene extends Phaser.Scene {
     if (!hud) return;
     this.levelText.setText(hud.levelName);
     this.scoreText.setText(`Puntos: ${hud.score}`);
-    this.cansText.setText(`🐟 ${hud.cans} latas de atún`);
-    this.heartsText.setText(`🧡 ${'♥'.repeat(Math.max(0, hud.hearts))}${'♡'.repeat(Math.max(0, 3 - hud.hearts))}`);
-    this.heldText.setText(hud.held ? `En mano: ${hud.held}` : '');
+    this.cansText.setText(`🐟 ${hud.cans} latas`);
+    const s = Math.ceil(hud.timeLeft);
+    const mm = Math.floor(s / 60);
+    const ss = String(s % 60).padStart(2, '0');
+    this.timeText.setText(`⏱ ${mm}:${ss}`);
+    this.timeText.setColor(s <= 30 ? '#ff6b6b' : '#7ee081');
+    this.heldText.setText(hud.held ? `🐾 ${hud.held}` : '');
     this.hintText.setText(hud.hint);
 
     for (let i = 0; i < this.cards.length; i++) {

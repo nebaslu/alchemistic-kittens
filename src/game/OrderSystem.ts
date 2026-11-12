@@ -1,5 +1,5 @@
 import { RECIPES, type Recipe } from './data/recipes';
-import type { LevelDef } from './data/levels';
+import type { OrderDef } from './data/worlds';
 
 export interface Order {
   recipe: Recipe;
@@ -23,10 +23,10 @@ export class OrderSystem {
   private readonly maxActive: number;
   private readonly total: number;
 
-  constructor(level: LevelDef) {
-    this.queue = [...level.orders];
-    this.total = level.orders.length;
-    this.maxActive = level.maxActiveOrders;
+  constructor(def: { orders: OrderDef[]; maxActiveOrders: number }) {
+    this.queue = [...def.orders];
+    this.total = def.orders.length;
+    this.maxActive = def.maxActiveOrders;
   }
 
   get allDone(): boolean {
