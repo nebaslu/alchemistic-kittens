@@ -27,6 +27,24 @@ Jugador casual web (sesiones de 2–10 min), escritorio y móvil; Phaser.js + Ty
 | 2 · Oficial | Ronroneo ★, Antídoto Anti-Pelos ★★, Dulce Lágrima de Sirena ★★ | 2 | 2 ingredientes, quema a los 28–30 s |
 | 3 · Maestro | Anti-Pelos ★★, Sirena ★★, Poción del Gato Montés ★★★, Ronroneo ★ | 3 | 3 ingredientes, quema a los 24 s |
 
+## Esquema de navegación
+
+```
+Boot ──► Login ──► Menú principal ──[Jugar]──► Partidas (rascadores 🗼)
+           ▲          │                            │  ▲
+           │          │[Salir]                     │  │[← Volver]
+           └──────────┘                            ▼  │
+                                             Modal: [▶ Empezar] / [✖ Cerrar]
+                                                       │ Empezar
+                                                       ▼
+                                              Partida (3 min, sin vidas)
+                                                       │ tiempo agotado
+                                                       ▼
+                                              Resultados (latas N/M 🥉🥈🥇)
+                                                       │ ↻ Volver a jugar → Partida (misma pantalla)
+                                                       │ ↩ Salir → Partidas
+```
+
 ## Flujo de menús y progresión entre pantallas
 - **Login** (usuario/contraseña, demo local en `localStorage`) → **menú principal** (Jugar / Salir) → **partidas** (rascadores; demo: 1 rascador 🗼 con 3 pantallas) → modal *Empezar/Cerrar* → **partida** → **resultados**.
 - Cada partida dura **3 min** fijos; no hay vidas. Al terminar va a resultados.

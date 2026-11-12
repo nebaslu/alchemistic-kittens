@@ -53,6 +53,6 @@ export class BootScene extends Phaser.Scene {
     g.generateTexture('barFg', 8, 8);
     g.clear();
 
-    this.scene.start('MenuScene');
+    this.scene.start('LoginScene');
   }
 }
