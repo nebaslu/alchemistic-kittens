@@ -7,27 +7,9 @@ import { Station } from '../game/Station';
 import { Cauldron } from '../game/Cauldron';
 import { OrderSystem, type Order } from '../game/OrderSystem';
 import { Fx } from '../game/Fx';
-
-export interface HudOrder {
-  emoji: string;
-  name: string;
-  timeLeft: number;
-  timeLimit: number;
-  remaining: string;
-}
-
-export interface HudState {
-  levelName: string;
-  score: number;
-  cans: number;
-  timeLeft: number;
-  orders: HudOrder[];
-  held: string;
-  hint: string;
-  showProgress: boolean;
-  progress: number;
-  progressLabel: string;
-}
+import { getConfig, screenDuration } from '../game/config';
+import { showHud, hideHud, updateHud, type HudState } from '../ui/hud';
+import { getPendingStart } from '../game/session';
 
 export class GameScene extends Phaser.Scene {
   private world!: WorldDef;
@@ -45,7 +27,9 @@ export class GameScene extends Phaser.Scene {
   private keyQ!: Phaser.Input.Keyboard.Key;
   private holdStation: Station | null = null;
   private holdProgress = 0;
-  private readonly holdNeeded = 1.0;
+  private holdNeeded = 1.0;
+  private interactDistance = 92;
+  private cleanSeconds = 1.5;
   private over = false;
   private hint = '';
   private readonly hud: HudState = {
@@ -65,19 +49,24 @@ export class GameScene extends Phaser.Scene {
     super('GameScene');
   }
 
-  init(data: { worldId: string; screenId: string }): void {
-    this.world = WORLDS.find((w) => w.id === data.worldId) ?? WORLDS[0];
+  init(data?: { worldId?: string; screenId?: string }): void {
+    const p = data ?? getPendingStart() ?? { worldId: 'torre', screenId: 'torre-s1' };
+    this.world = WORLDS.find((w) => w.id === p.worldId) ?? WORLDS[0];
     this.screen =
-      this.world.screens.find((s) => s.id === data.screenId) ?? this.world.screens[0];
+      this.world.screens.find((s) => s.id === p.screenId) ?? this.world.screens[0];
   }
 
   create(): void {
+    const cfg = getConfig();
     this.score = 0;
     this.cans = 0;
     this.over = false;
     this.holdStation = null;
     this.holdProgress = 0;
-    this.timeLeft = this.screen.duration;
+    this.holdNeeded = cfg.interaction.processSeconds;
+    this.interactDistance = cfg.interaction.distance;
+    this.cleanSeconds = cfg.interaction.cleanSeconds;
+    this.timeLeft = screenDuration(this.screen.id);
     this.hint = 'Coge un ingrediente del puesto superior (E junto a él)';
     this.buildFloor();
     this.stations = this.screen.layout
@@ -86,7 +75,7 @@ export class GameScene extends Phaser.Scene {
     const c = this.screen.layout.find((l) => l.kind === 'cauldron');
     this.cauldron = new Cauldron(this, c ? c.x : 480, c ? c.y : 340);
     this.stations.push(this.cauldron.station);
-    this.player = new Player(this, 480, 560);
+    this.player = new Player(this, 480, 560, cfg.player.speed);
     this.orders = new OrderSystem({
       pool: this.screen.pool,
       maxActiveOrders: this.screen.maxActiveOrders,
@@ -99,8 +88,7 @@ export class GameScene extends Phaser.Scene {
     this.keyE = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     this.keyQ = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
     this.hud.levelName = this.screen.name;
-    this.registry.set('hud', this.hud);
-    this.scene.launch('UIScene');
+    showHud();
     const banner = this.add
       .text(480, 300, `${this.world.emoji} ${this.screen.name}`, {
         fontFamily: 'monospace',
@@ -153,11 +141,12 @@ export class GameScene extends Phaser.Scene {
       this.handleInteract(dt);
       if (Phaser.Input.Keyboard.JustDown(this.keyQ)) this.dropItem();
     }
+    updateHud(this.hud);
     this.refreshHud();
   }
 
   private handleInteract(dt: number): void {
-    const near = this.player.nearest(this.stations);
+    const near = this.player.nearest(this.stations, this.interactDistance);
     if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
       this.interact(near);
     }
@@ -175,7 +164,7 @@ export class GameScene extends Phaser.Scene {
         this.cauldron.state === 'exploded' &&
         this.player.item?.kind === 'wand'
       ) {
-        if (this.cauldron.cleanTick(dt)) {
+        if (this.cauldron.cleanTick(dt, this.cleanSeconds)) {
           this.player.item = null;
           Fx.sfx('clean');
           Fx.burst(this, this.cauldron.cx, this.cauldron.cy, 0x9d7bff, 16);
@@ -225,7 +214,7 @@ export class GameScene extends Phaser.Scene {
               this,
               st.cx,
               st.cy - 46,
-              `+${res.points} pts · +${res.cans} 🐟 (${Math.ceil(res.timeLeft)}s × 1.5)`,
+              `+${res.points} pts · +${res.cans} 🐟 (${Math.ceil(res.timeLeft)}s × ${getConfig().match.tipMultiplier})`,
               '#ffd75e',
             );
             this.setHint(`¡Entregado! ${res.recipe.name} 🧪`);
@@ -352,13 +341,17 @@ export class GameScene extends Phaser.Scene {
   private endMatch(): void {
     if (this.over) return;
     this.over = true;
-    this.scene.stop('UIScene');
-    this.scene.start('ResultsScene', {
-      worldId: this.world.id,
-      screenId: this.screen.id,
-      score: this.score,
-      cans: this.cans,
-    });
+    hideHud();
+    window.dispatchEvent(
+      new CustomEvent('ak:gameover', {
+        detail: {
+          worldId: this.world.id,
+          screenId: this.screen.id,
+          score: this.score,
+          cans: this.cans,
+        },
+      }),
+    );
   }
 
   private setHint(text: string): void {
@@ -389,7 +382,7 @@ export class GameScene extends Phaser.Scene {
     const cleaning =
       this.cauldron.state === 'exploded' &&
       this.player.item?.kind === 'wand' &&
-      this.player.nearest(this.stations)?.kind === 'cauldron';
+      this.player.nearest(this.stations, this.interactDistance)?.kind === 'cauldron';
     const processing = this.holdStation !== null && this.keyE.isDown;
     h.showProgress = cleaning || processing;
     h.progress = cleaning

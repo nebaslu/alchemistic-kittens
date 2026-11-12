@@ -5,26 +5,351 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Alchemistic Kittens</title>
     <style>
+      :root {
+        --bg: #14101f;
+        --panel: #241a33;
+        --accent: #6d4fc2;
+        --accent2: #9d7bff;
+        --gold: #ffd75e;
+        --text: #e8e2f5;
+      }
+      * {
+        box-sizing: border-box;
+      }
       html,
       body {
         margin: 0;
-        padding: 0;
-        background: #14101f;
         height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font-family: monospace;
       }
-      #game {
+      #app {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
+      .screen {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        padding: 20px;
+      }
+      .hidden {
+        display: none !important;
+      }
+      h1 {
+        color: var(--gold);
+        text-shadow: 3px 3px 0 #000;
+        margin: 0;
+      }
+      h2 {
+        color: var(--gold);
+        margin: 0;
+      }
+      .card {
+        background: var(--panel);
+        border: 2px solid var(--accent);
+        border-radius: 12px;
+        padding: 18px;
+      }
+      button {
+        font-family: monospace;
+        font-size: 18px;
+        padding: 12px 22px;
+        min-height: 48px;
+        background: var(--accent);
+        color: #fff;
+        border: 2px solid var(--accent2);
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #8a6ce0;
+      }
+      button.secondary {
+        background: #3a2f52;
+      }
+      input {
+        font-family: monospace;
+        font-size: 16px;
+        padding: 10px;
+        width: 280px;
+        background: #1c1626;
+        color: #fff;
+        border: 2px solid var(--accent);
+        border-radius: 8px;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .world-card,
+      .screen-card {
+        width: 180px;
+        min-height: 130px;
+        background: var(--panel);
+        border: 2px solid var(--accent);
+        border-radius: 12px;
+        padding: 12px;
+        text-align: center;
+        cursor: pointer;
+      }
+      .world-card:hover,
+      .screen-card:not(.locked):hover {
+        border-color: var(--gold);
+      }
+      .world-card.selected {
+        border-color: var(--gold);
+        background: #3d2d66;
+      }
+      .screen-card.locked {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+      .screen-card .big {
+        font-size: 36px;
+      }
+      #modal-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 100vh;
+        z-index: 50;
+      }
+      #modal {
+        background: var(--panel);
+        border: 3px solid var(--accent2);
+        border-radius: 14px;
+        padding: 24px;
+        width: 400px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      #hud {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 10;
+        font-family: monospace;
+      }
+      #hud-top {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 52px;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 0 10px;
+        font-size: 14px;
+      }
+      #hud-time {
+        margin-left: auto;
+        font-size: 22px;
+        color: #7ee081;
+      }
+      #hud-time.low {
+        color: #ff6b6b;
+      }
+      #hud-orders {
+        position: absolute;
+        top: 60px;
+        left: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .order-card {
+        width: 228px;
+        background: rgba(0, 0, 0, 0.45);
+        border: 1px solid var(--accent2);
+        border-radius: 8px;
+        padding: 6px 8px;
+        font-size: 12px;
+      }
+      .order-card .bar {
+        height: 7px;
+        background: #1c1626;
+        border-radius: 3px;
+        margin-top: 4px;
+        overflow: hidden;
+      }
+      .order-card .bar > div {
+        height: 100%;
+        background: #7ee081;
+      }
+      #hud-hint {
+        position: absolute;
+        bottom: 8px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 14px;
+        text-shadow: 2px 2px 0 #000;
+      }
+      #hud-progress {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 204px;
+        height: 14px;
+        background: rgba(0, 0, 0, 0.6);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      #hud-progress > div {
+        height: 100%;
+        background: #9d7bff;
+        width: 0;
+      }
+      #hud-progress-label {
+        position: absolute;
+        bottom: 48px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 13px;
+        color: #ffe08a;
+      }
+      #game {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       canvas {
         image-rendering: pixelated;
       }
+      .can {
+        width: 48px;
+        height: 62px;
+        border: 2px solid #000;
+        border-radius: 6px;
+        position: relative;
+        overflow: hidden;
+        margin: 0 auto;
+      }
+      .can .fill {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.85);
+        height: 0;
+      }
+      .can-label {
+        text-align: center;
+        font-size: 14px;
+        margin-top: 6px;
+      }
+      .can-count {
+        text-align: center;
+        font-size: 16px;
+        margin-top: 2px;
+      }
+      .err {
+        color: #ff6b6b;
+        font-size: 14px;
+        min-height: 18px;
+      }
+      .subtitle {
+        color: #cfc4e8;
+      }
     </style>
   </head>
   <body>
-    <div id="game"></div>
+    <div id="app">
+      <section id="screen-login" class="screen">
+        <h1>🐱⚗️ Alchemistic Kittens</h1>
+        <p class="subtitle">Inicia sesión para entrar a la torre</p>
+        <form
+          id="login-form"
+          class="card"
+          style="display: flex; flex-direction: column; gap: 12px; align-items: center"
+        >
+          <input id="login-user" type="text" placeholder="Usuario" autocomplete="username" />
+          <input
+            id="login-pass"
+            type="password"
+            placeholder="Contraseña"
+            autocomplete="current-password"
+          />
+          <div class="err" id="login-error"></div>
+          <button type="submit">▶ Entrar</button>
+        </form>
+      </section>
+
+      <section id="screen-menu" class="screen hidden">
+        <h1>🗼🐱 Alchemistic Kittens</h1>
+        <p class="subtitle" id="menu-user"></p>
+        <button id="btn-play">▶ Jugar</button>
+        <button id="btn-logout" class="secondary">⏻ Salir</button>
+      </section>
+
+      <section id="screen-partidas" class="screen hidden" style="justify-content: flex-start; padding-top: 24px">
+        <div style="width: 100%; max-width: 900px; display: flex; align-items: center; gap: 12px">
+          <button id="btn-back-menu" class="secondary" style="min-height: 36px; font-size: 15px">
+            ← Volver
+          </button>
+          <h1 style="font-size: 26px">Elige tu rascador</h1>
+        </div>
+        <div class="row" id="worlds-row"></div>
+        <h2 id="screens-title" style="font-size: 18px"></h2>
+        <div class="row" id="screens-row"></div>
+        <div id="modal-overlay" class="hidden">
+          <div id="modal">
+            <h2 id="modal-title"></h2>
+            <p id="modal-info" class="subtitle"></p>
+            <button id="modal-start">▶ Empezar partida</button>
+            <button id="modal-close" class="secondary">✖ Cerrar</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="screen-results" class="screen hidden">
+        <h1 style="font-size: 30px">⏱️ ¡Tiempo! Resultados</h1>
+        <p class="subtitle" id="results-screen"></p>
+        <p id="results-score" style="font-size: 20px"></p>
+        <p id="results-medal" style="font-size: 20px"></p>
+        <div class="row" id="results-cans" style="align-items: flex-end; gap: 40px; margin: 12px 0"></div>
+        <div class="row">
+          <button id="btn-again">↻ Volver a jugar</button>
+          <button id="btn-to-partidas" class="secondary">↩ Salir</button>
+        </div>
+      </section>
+
+      <div id="hud" class="hidden">
+        <div id="hud-top">
+          <span id="hud-level"></span>
+          <span id="hud-score"></span>
+          <span id="hud-cans"></span>
+          <span id="hud-held"></span>
+          <span id="hud-time">3:00</span>
+        </div>
+        <div id="hud-orders"></div>
+        <div id="hud-progress-label" class="hidden"></div>
+        <div id="hud-progress" class="hidden"><div></div></div>
+        <div id="hud-hint"></div>
+      </div>
+
+      <div id="game" class="hidden"></div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -31,6 +31,9 @@ Los pedidos llegan en flujo continuo durante los 3 min de partida (pool aleatori
 
 Balance: propina = segundos restantes del pedido × 1.5 🐟 (regla fija). Una entrega rápida de 70 s da ~100 🐟; en 180 s caben unas 6–8 entregas en pantalla 1 (~500–700 🐟 si se juega bien), por eso los umbrales de atún están en cientos, no en decenas.
 
+## Arquitectura técnica
+Menús y HUD en HTML/CSS plano (`index.html`, `src/ui/`); Phaser solo para la partida (`src/scenes/`), creado al empezar y destruido al terminar (`src/game/session.ts`). Configuración básica ajustable sin recompilar en `public/config/game.config.json` (duración de partida, velocidad, multiplicador de propina, tiempos de proceso/limpieza, umbrales de atún por pantalla), cargado en runtime con `fetch`.
+
 ## Esquema de navegación
 
 ```

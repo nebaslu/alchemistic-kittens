@@ -1,0 +1,24 @@
+{
+  "match": {
+    "durationSeconds": 180,
+    "tipMultiplier": 1.5
+  },
+  "player": {
+    "speed": 235
+  },
+  "interaction": {
+    "distance": 92,
+    "processSeconds": 1.0,
+    "cleanSeconds": 1.5
+  },
+  "screens": {
+    "torre-s1": { "durationSeconds": 180 },
+    "torre-s2": { "durationSeconds": 180 },
+    "torre-s3": { "durationSeconds": 180 }
+  },
+  "medals": {
+    "torre-s1": { "bronze": 150, "silver": 300, "gold": 500 },
+    "torre-s2": { "bronze": 200, "silver": 400, "gold": 650 },
+    "torre-s3": { "bronze": 120, "silver": 250, "gold": 400 }
+  }
+}

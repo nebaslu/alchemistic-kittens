@@ -26,3 +26,9 @@ export interface Item {
 }
 
 export type CauldronState = 'empty' | 'cooking' | 'ready' | 'exploded';
+
+export interface MedalThresholds {
+  bronze: number;
+  silver: number;
+  gold: number;
+}

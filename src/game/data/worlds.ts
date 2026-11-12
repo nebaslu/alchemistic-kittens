@@ -14,20 +14,12 @@ export interface OrderDef {
   timeLimit: number;
 }
 
-export interface MedalThresholds {
-  bronze: number;
-  silver: number;
-  gold: number;
-}
-
 export interface ScreenDef {
   id: string;
   name: string;
-  duration: number;
   maxActiveOrders: number;
   pool: OrderDef[];
   layout: StationPlacement[];
-  medals: MedalThresholds;
 }
 
 export interface WorldDef {
@@ -54,10 +46,8 @@ export const WORLDS: WorldDef[] = [
       {
         id: 'torre-s1',
         name: 'Pantalla 1 · Sótano de pociones',
-        duration: 180,
         maxActiveOrders: 1,
         pool: [{ recipeId: 'ronroneo', timeLimit: 70 }],
-        medals: { bronze: 150, silver: 300, gold: 500 },
         layout: [
           ...ingredientRow(),
           { kind: 'mortar', x: 100, y: 320, label: 'Almirez' },
@@ -70,14 +60,12 @@ export const WORLDS: WorldDef[] = [
       {
         id: 'torre-s2',
         name: 'Pantalla 2 · Sala del caldero',
-        duration: 180,
         maxActiveOrders: 2,
         pool: [
           { recipeId: 'ronroneo', timeLimit: 80 },
           { recipeId: 'antiPelos', timeLimit: 95 },
           { recipeId: 'sirena', timeLimit: 95 },
         ],
-        medals: { bronze: 200, silver: 400, gold: 650 },
         layout: [
           ...ingredientRow(),
           { kind: 'mortar', x: 110, y: 300, label: 'Almirez' },
@@ -90,7 +78,6 @@ export const WORLDS: WorldDef[] = [
       {
         id: 'torre-s3',
         name: 'Pantalla 3 · Ático del mago',
-        duration: 180,
         maxActiveOrders: 3,
         pool: [
           { recipeId: 'antiPelos', timeLimit: 85 },
@@ -98,7 +85,6 @@ export const WORLDS: WorldDef[] = [
           { recipeId: 'montes', timeLimit: 100 },
           { recipeId: 'ronroneo', timeLimit: 70 },
         ],
-        medals: { bronze: 120, silver: 250, gold: 400 },
         layout: [
           ...ingredientRow(),
           { kind: 'mortar', x: 120, y: 310, label: 'Almirez' },
