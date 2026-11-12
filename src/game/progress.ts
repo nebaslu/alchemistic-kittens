@@ -1,4 +1,5 @@
-import type { MedalThresholds, WorldDef } from './data/worlds';
+import type { MedalThresholds } from './types';
+import type { WorldDef } from './data/worlds';
 
 export type Medal = 'bronze' | 'silver' | 'gold';
 

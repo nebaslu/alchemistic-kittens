@@ -16,11 +16,12 @@ export class Player {
   item: Item | null = null;
   x: number;
   y: number;
-  private readonly speed = 235;
+  private readonly speed: number;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+  constructor(scene: Phaser.Scene, x: number, y: number, speed = 235) {
     this.x = x;
     this.y = y;
+    this.speed = speed;
     this.sprite = scene.add.image(x, y, 'cat').setDepth(20);
     this.sprite.setScale(2);
     this.heldText = scene.add

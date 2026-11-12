@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { getPendingStart } from '../game/session';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -7,15 +8,6 @@ export class BootScene extends Phaser.Scene {
 
   create(): void {
     const g = this.make.graphics({ x: 0, y: 0 }, false);
-
-    g.fillStyle(0x8a5a2b);
-    g.fillTriangle(0, 16, 32, 0, 64, 16);
-    g.fillTriangle(0, 16, 32, 32, 64, 16);
-    g.lineStyle(1, 0x241a33);
-    g.strokeTriangle(0, 16, 32, 0, 64, 16);
-    g.strokeTriangle(0, 16, 32, 32, 64, 16);
-    g.generateTexture('floor', 64, 32);
-    g.clear();
 
     g.fillStyle(0x565064);
     g.fillTriangle(0, 24, 48, 0, 96, 24);
@@ -38,29 +30,6 @@ export class BootScene extends Phaser.Scene {
     g.generateTexture('cat', 32, 32);
     g.clear();
 
-    g.fillStyle(0x000000, 0.35);
-    g.fillEllipse(24, 12, 48, 24);
-    g.generateTexture('shadow', 48, 24);
-    g.clear();
-
-    g.fillStyle(0xffffff);
-    g.fillEllipse(13, 8, 20, 12);
-    g.fillTriangle(23, 8, 31, 2, 31, 14);
-    g.fillStyle(0x000000);
-    g.fillRect(6, 6, 2, 2);
-    g.generateTexture('fish', 32, 16);
-    g.clear();
-
-    g.fillStyle(0x1c1626);
-    g.fillRect(0, 0, 8, 8);
-    g.generateTexture('barBg', 8, 8);
-    g.clear();
-
-    g.fillStyle(0x7ee081);
-    g.fillRect(0, 0, 8, 8);
-    g.generateTexture('barFg', 8, 8);
-    g.clear();
-
-    this.scene.start('LoginScene');
+    this.scene.start('GameScene', getPendingStart() ?? undefined);
   }
 }

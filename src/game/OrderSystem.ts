@@ -1,5 +1,6 @@
 import { RECIPES, type Recipe } from './data/recipes';
 import type { OrderDef } from './data/worlds';
+import { getConfig } from './config';
 
 export interface Order {
   recipe: Recipe;
@@ -57,7 +58,7 @@ export class OrderSystem {
     this.delivered++;
     const points = o.recipe.basePoints;
     const timeLeft = Math.max(0, o.timeLeft);
-    const cans = Math.round(timeLeft * 1.5);
+    const cans = Math.round(timeLeft * getConfig().match.tipMultiplier);
     return { ok: true, points, cans, timeLeft, recipe: o.recipe };
   }
 }

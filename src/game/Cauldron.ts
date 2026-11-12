@@ -130,9 +130,9 @@ export class Cauldron {
     return id;
   }
 
-  cleanTick(dt: number): boolean {
+  cleanTick(dt: number, seconds: number): boolean {
     if (this.state !== 'exploded') return false;
-    this.cleanProgress += dt / 1.5;
+    this.cleanProgress += dt / seconds;
     if (this.cleanProgress >= 1) {
       this.state = 'empty';
       this.cleanProgress = 0;
