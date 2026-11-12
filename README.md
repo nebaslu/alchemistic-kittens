@@ -11,6 +11,18 @@ npm run build    # tsc --noEmit + vite build -> dist/
 npm run preview  # sirve el build
 ```
 
+## Con Docker (sin instalar Node ni dependencias)
+
+Solo necesitas Docker. El `Dockerfile` es multi-stage: compila con `node:22-alpine` (`npm ci` + `npm run build`) y sirve el `dist/` con `nginx:1.27-alpine` en el puerto 8080 del contenedor.
+
+```bash
+./run.sh            # compila la imagen y sirve el juego en http://localhost:8080
+PORT=3000 ./run.sh  # en otro puerto local
+./run.sh build      # solo compila la imagen (sin arrancar)
+```
+
+El contenedor se publica solo en loopback (`127.0.0.1`), no se expone a la red. Ctrl+C detiene y elimina el contenedor (`--rm`).
+
 ## Cómo se juega
 
 - **WASD / flechas**: moverse. **E**: interactuar (mantén E para moler, cortar o limpiar).
