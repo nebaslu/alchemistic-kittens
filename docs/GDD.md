@@ -20,12 +20,16 @@ Jugador casual web (sesiones de 2–10 min), escritorio y móvil; Phaser.js + Ty
 - Caldero explotado = inutilizable hasta limpiarlo con la **varita miaugica 🪄** (cogerla del soporte, volver, mantener E 1.5 s).
 - Pedido expirado = −1 🧡. A 0 corazones → game over.
 
-## Progresión (demo: 3 niveles)
-| Nivel | Pedidos | Pedidos activos | Complejidad |
-|---|---|---|---|
-| 1 · Aprendiz | 2 × Poción de Ronroneo (★) | 1 | 1 ingrediente, sin quema (burnTime alto) |
-| 2 · Oficial | Ronroneo ★, Antídoto Anti-Pelos ★★, Dulce Lágrima de Sirena ★★ | 2 | 2 ingredientes, quema a los 28–30 s |
-| 3 · Maestro | Anti-Pelos ★★, Sirena ★★, Poción del Gato Montés ★★★, Ronroneo ★ | 3 | 3 ingredientes, quema a los 24 s |
+## Progresión (demo: 3 pantallas en el rascador 🗼)
+Los pedidos llegan en flujo continuo durante los 3 min de partida (pool aleatorio por pantalla, hasta `maxActiveOrders` activos a la vez):
+
+| Pantalla | Pool de recetas | Activos | Complejidad | Medallas 🐟 🥉/🥈/🥇 |
+|---|---|---|---|---|
+| 1 · Sótano | Ronroneo ★ (70 s) | 1 | 1 ingrediente, sin quema | 150 / 300 / 500 |
+| 2 · Sala del caldero | Ronroneo ★ 80 s, Anti-Pelos ★★ 95 s, Sirena ★★ 95 s | 2 | 2 ingredientes, quema 28–30 s | 200 / 400 / 650 |
+| 3 · Ático | Anti-Pelos ★★ 85 s, Sirena ★★ 85 s, Gato Montés ★★★ 100 s, Ronroneo ★ 70 s | 3 | 3 ingredientes, quema 24 s | 120 / 250 / 400 |
+
+Balance: propina = segundos restantes del pedido × 1.5 🐟 (regla fija). Una entrega rápida de 70 s da ~100 🐟; en 180 s caben unas 6–8 entregas en pantalla 1 (~500–700 🐟 si se juega bien), por eso los umbrales de medalla están en cientos, no en decenas.
 
 ## Esquema de navegación
 

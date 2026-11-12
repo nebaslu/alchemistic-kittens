@@ -88,7 +88,7 @@ export class GameScene extends Phaser.Scene {
     this.stations.push(this.cauldron.station);
     this.player = new Player(this, 480, 560);
     this.orders = new OrderSystem({
-      orders: this.screen.orders,
+      pool: this.screen.pool,
       maxActiveOrders: this.screen.maxActiveOrders,
     });
     this.cursors = this.input.keyboard!.createCursorKeys();

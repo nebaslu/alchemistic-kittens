@@ -25,7 +25,7 @@ export interface ScreenDef {
   name: string;
   duration: number;
   maxActiveOrders: number;
-  orders: OrderDef[];
+  pool: OrderDef[];
   layout: StationPlacement[];
   medals: MedalThresholds;
 }
@@ -56,11 +56,8 @@ export const WORLDS: WorldDef[] = [
         name: 'Pantalla 1 · Sótano de pociones',
         duration: 180,
         maxActiveOrders: 1,
-        orders: [
-          { recipeId: 'ronroneo', timeLimit: 70 },
-          { recipeId: 'ronroneo', timeLimit: 70 },
-        ],
-        medals: { bronze: 20, silver: 45, gold: 80 },
+        pool: [{ recipeId: 'ronroneo', timeLimit: 70 }],
+        medals: { bronze: 150, silver: 300, gold: 500 },
         layout: [
           ...ingredientRow(),
           { kind: 'mortar', x: 100, y: 320, label: 'Almirez' },
@@ -75,12 +72,12 @@ export const WORLDS: WorldDef[] = [
         name: 'Pantalla 2 · Sala del caldero',
         duration: 180,
         maxActiveOrders: 2,
-        orders: [
+        pool: [
           { recipeId: 'ronroneo', timeLimit: 80 },
           { recipeId: 'antiPelos', timeLimit: 95 },
           { recipeId: 'sirena', timeLimit: 95 },
         ],
-        medals: { bronze: 30, silver: 60, gold: 100 },
+        medals: { bronze: 200, silver: 400, gold: 650 },
         layout: [
           ...ingredientRow(),
           { kind: 'mortar', x: 110, y: 300, label: 'Almirez' },
@@ -95,13 +92,13 @@ export const WORLDS: WorldDef[] = [
         name: 'Pantalla 3 · Ático del mago',
         duration: 180,
         maxActiveOrders: 3,
-        orders: [
+        pool: [
           { recipeId: 'antiPelos', timeLimit: 85 },
           { recipeId: 'sirena', timeLimit: 85 },
           { recipeId: 'montes', timeLimit: 100 },
           { recipeId: 'ronroneo', timeLimit: 70 },
         ],
-        medals: { bronze: 40, silver: 80, gold: 130 },
+        medals: { bronze: 120, silver: 250, gold: 400 },
         layout: [
           ...ingredientRow(),
           { kind: 'mortar', x: 120, y: 310, label: 'Almirez' },
