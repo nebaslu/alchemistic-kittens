@@ -63,8 +63,14 @@ export function isScreenUnlocked(
   return p?.medal === 'silver' || p?.medal === 'gold';
 }
 
-export const MEDAL_EMOJI: Record<Medal, string> = {
-  bronze: '🥉',
-  silver: '🥈',
-  gold: '🥇',
+export const MEDAL_COLOR: Record<Medal, number> = {
+  bronze: 0xcd7f32,
+  silver: 0xc0c0c0,
+  gold: 0xffd700,
+};
+
+export const MEDAL_LABEL: Record<Medal, string> = {
+  bronze: 'bronce',
+  silver: 'plata',
+  gold: 'oro',
 };
