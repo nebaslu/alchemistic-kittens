@@ -22,11 +22,11 @@ export interface LevelDef {
   layout: StationPlacement[];
 }
 
-const ingredientRow = (y: number): StationPlacement[] =>
+const ingredientRow = (): StationPlacement[] =>
   INGREDIENT_IDS.map((ingredient, i) => ({
     kind: 'ingredient' as StationKind,
     x: 90 + i * 130,
-    y,
+    y: 150,
     ingredient,
   }));
 
@@ -40,7 +40,7 @@ export const LEVELS: LevelDef[] = [
       { recipeId: 'ronroneo', timeLimit: 70 },
     ],
     layout: [
-      ...ingredientRow(80),
+      ...ingredientRow(),
       { kind: 'mortar', x: 100, y: 300, label: 'Almirez' },
       { kind: 'cuttingBoard', x: 100, y: 430, label: 'Tabla' },
       { kind: 'cauldron', x: 480, y: 330 },
@@ -58,7 +58,7 @@ export const LEVELS: LevelDef[] = [
       { recipeId: 'sirena', timeLimit: 95 },
     ],
     layout: [
-      ...ingredientRow(80),
+      ...ingredientRow(),
       { kind: 'mortar', x: 110, y: 280, label: 'Almirez' },
       { kind: 'cuttingBoard', x: 110, y: 430, label: 'Tabla' },
       { kind: 'cauldron', x: 500, y: 350 },
@@ -77,7 +77,7 @@ export const LEVELS: LevelDef[] = [
       { recipeId: 'ronroneo', timeLimit: 70 },
     ],
     layout: [
-      ...ingredientRow(80),
+      ...ingredientRow(),
       { kind: 'mortar', x: 120, y: 290, label: 'Almirez' },
       { kind: 'cuttingBoard', x: 120, y: 450, label: 'Tabla' },
       { kind: 'cauldron', x: 470, y: 340 },

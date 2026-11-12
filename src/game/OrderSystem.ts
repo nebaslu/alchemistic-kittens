@@ -18,6 +18,7 @@ export interface DeliverResult {
 export class OrderSystem {
   active: Order[] = [];
   delivered = 0;
+  expired = 0;
   private readonly queue: { recipeId: string; timeLimit: number }[];
   private readonly maxActive: number;
   private readonly total: number;
@@ -29,7 +30,7 @@ export class OrderSystem {
   }
 
   get allDone(): boolean {
-    return this.delivered === this.total;
+    return this.delivered + this.expired === this.total;
   }
 
   update(dt: number, onExpire: (o: Order) => void): void {
@@ -47,6 +48,7 @@ export class OrderSystem {
       o.timeLeft -= dt;
       if (o.timeLeft <= 0) {
         this.active.splice(i, 1);
+        this.expired++;
         onExpire(o);
       }
     }

@@ -44,6 +44,7 @@ export class GameScene extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: Record<string, Phaser.Input.Keyboard.Key>;
   private keyE!: Phaser.Input.Keyboard.Key;
+  private keyQ!: Phaser.Input.Keyboard.Key;
   private holdStation: Station | null = null;
   private holdProgress = 0;
   private readonly holdNeeded = 1.0;
@@ -94,6 +95,7 @@ export class GameScene extends Phaser.Scene {
       Phaser.Input.Keyboard.Key
     >;
     this.keyE = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.keyQ = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
     this.hud.levelName = this.level.name;
     this.registry.set('hud', this.hud);
     this.scene.launch('UIScene');
@@ -142,6 +144,7 @@ export class GameScene extends Phaser.Scene {
       );
       this.orders.update(dt, (o) => this.onOrderExpire(o));
       this.handleInteract(dt);
+      if (Phaser.Input.Keyboard.JustDown(this.keyQ)) this.dropItem();
     }
     this.refreshHud();
   }
@@ -265,6 +268,10 @@ export class GameScene extends Phaser.Scene {
               ? 'Mantén E para limpiar con la varita 🪄'
               : '¡Explotó! Coge la varita 🪄 del soporte y vuelve',
           );
+        } else if (this.cauldron.state === 'cooking' && !item) {
+          this.cauldron.clear();
+          Fx.sfx('drop');
+          this.setHint('Mezcla tirada. El caldero vuelve a estar vacío 🍲');
         } else {
           this.setHint('El caldero está vacío: echa un ingrediente de un pedido activo');
         }
@@ -294,6 +301,20 @@ export class GameScene extends Phaser.Scene {
         break;
       }
     }
+  }
+
+  private dropItem(): void {
+    const item = this.player.item;
+    if (!item) return;
+    this.player.item = null;
+    Fx.sfx('drop');
+    const label =
+      item.kind === 'potion'
+        ? 'la poción 🧪'
+        : item.kind === 'wand'
+          ? 'la varita 🪄'
+          : `${INGREDIENTS[item.ingredient!].name} ${INGREDIENTS[item.ingredient!].emoji}`;
+    this.setHint(`Tiraste ${label} (Q)`);
   }
 
   private completeProcess(): void {

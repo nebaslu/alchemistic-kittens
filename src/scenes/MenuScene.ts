@@ -51,7 +51,7 @@ export class MenuScene extends Phaser.Scene {
         480,
         520,
         [
-          'Controles: WASD / flechas para moverte · E para interactuar (mantén E para moler/cortar/limpiar)',
+          'Controles: WASD / flechas para moverte · E para interactuar (mantén E para moler/cortar/limpiar) · Q para tirar lo que llevas',
           'Coge ingredientes, prepáralos (almirez 🥣 / tabla 🔪), échalos al caldero 🍲,',
           'saca la poción 🧪 y entrégala en el expendedor 🛒 antes de que se acabe el tiempo.',
           'Si el caldero se quema o mezclas mal: explota 💥. Límpialo con la varita miaugica 🪄.',

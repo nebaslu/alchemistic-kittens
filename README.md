@@ -25,7 +25,7 @@ El contenedor se publica solo en loopback (`127.0.0.1`), no se expone a la red. 
 
 ## Cómo se juega
 
-- **WASD / flechas**: moverse. **E**: interactuar (mantén E para moler, cortar o limpiar).
+- **WASD / flechas**: moverse. **E**: interactuar (mantén E para moler, cortar o limpiar). **Q**: tirar lo que llevas en mano (por si una poción ya no tiene pedido).
 - Coge ingredientes del puesto superior, prepáralos en el **almirez 🥣** (muele) o la **tabla 🔪** (corta), échalos al **caldero 🍲**, espera a que la poción esté lista, sácala (entra en **frasco de cristal 🧪**, no se lava) y entrégala en el **expendedor 🛒** antes de que se acabe el tiempo.
 - **Propina**: segundos restantes × 1.5 latas de atún 🐟 (30 s × 1.5 = 45 🐟).
 - Si mezclas mal o se quema el caldero: **explota 💥** y hay que limpiarlo con la **varita miaugica 🪄**.
