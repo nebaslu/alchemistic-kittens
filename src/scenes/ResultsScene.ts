@@ -16,7 +16,7 @@ export interface ResultsData {
 }
 
 const CAN_COLORS = [0xcd7f32, 0xc0c0c0, 0xffd700];
-const CAN_LABELS = ['🥉 Bronce', '🥈 Plata', '🥇 Oro'];
+const CAN_LABELS = ['Atún bronce', 'Atún plata', 'Atún oro'];
 
 export class ResultsScene extends Phaser.Scene {
   private d!: ResultsData;
