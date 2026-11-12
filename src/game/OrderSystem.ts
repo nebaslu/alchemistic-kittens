@@ -19,24 +19,17 @@ export class OrderSystem {
   active: Order[] = [];
   delivered = 0;
   expired = 0;
-  private readonly queue: { recipeId: string; timeLimit: number }[];
+  private readonly pool: OrderDef[];
   private readonly maxActive: number;
-  private readonly total: number;
 
-  constructor(def: { orders: OrderDef[]; maxActiveOrders: number }) {
-    this.queue = [...def.orders];
-    this.total = def.orders.length;
+  constructor(def: { pool: OrderDef[]; maxActiveOrders: number }) {
+    this.pool = def.pool;
     this.maxActive = def.maxActiveOrders;
   }
 
-  get allDone(): boolean {
-    return this.delivered + this.expired === this.total;
-  }
-
   update(dt: number, onExpire: (o: Order) => void): void {
-    while (this.active.length < this.maxActive && this.queue.length > 0) {
-      const def = this.queue.shift();
-      if (!def) break;
+    while (this.active.length < this.maxActive && this.pool.length > 0) {
+      const def = this.pool[Math.floor(Math.random() * this.pool.length)];
       this.active.push({
         recipe: RECIPES[def.recipeId],
         timeLeft: def.timeLimit,

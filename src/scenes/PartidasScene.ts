@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { WORLDS, type ScreenDef, type WorldDef } from '../game/data/worlds';
 import {
-  MEDAL_EMOJI,
+  MEDAL_COLOR,
   currentUser,
   isScreenUnlocked,
   loadProgress,
@@ -139,9 +139,8 @@ export class PartidasScene extends Phaser.Scene {
       const icon = this.add
         .text(0, -8, unlocked ? '🐾' : '🔒', { fontSize: '36px' })
         .setOrigin(0.5);
-      const medal = this.add
-        .text(0, 30, p?.medal ? MEDAL_EMOJI[p.medal] : '—', { fontSize: '22px' })
-        .setOrigin(0.5);
+      const medal = this.add.image(0, 30, 'fish').setOrigin(0.5).setScale(1.5);
+      medal.setTint(p?.medal ? MEDAL_COLOR[p.medal] : 0x555555);
       const best = this.add
         .text(0, 52, p ? `🐟 mejor: ${p.bestCans}` : 'sin jugar', {
           fontFamily: 'monospace',
@@ -199,7 +198,7 @@ export class PartidasScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setDepth(92);
     const info = this.add
-      .text(480, 300, `Duración: ${Math.round(screen.duration / 60)} min · Medallas: 🥉${screen.medals.bronze} 🥈${screen.medals.silver} 🥇${screen.medals.gold} 🐟`, {
+      .text(480, 300, `Duración: ${Math.round(screen.duration / 60)} min · Atún: bronce ${screen.medals.bronze} 🐟 · plata ${screen.medals.silver} 🐟 · oro ${screen.medals.gold} 🐟`, {
         fontFamily: 'monospace',
         fontSize: '14px',
         color: '#cfc4e8',

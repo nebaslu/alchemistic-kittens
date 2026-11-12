@@ -43,6 +43,14 @@ export class BootScene extends Phaser.Scene {
     g.generateTexture('shadow', 48, 24);
     g.clear();
 
+    g.fillStyle(0xffffff);
+    g.fillEllipse(13, 8, 20, 12);
+    g.fillTriangle(23, 8, 31, 2, 31, 14);
+    g.fillStyle(0x000000);
+    g.fillRect(6, 6, 2, 2);
+    g.generateTexture('fish', 32, 16);
+    g.clear();
+
     g.fillStyle(0x1c1626);
     g.fillRect(0, 0, 8, 8);
     g.generateTexture('barBg', 8, 8);

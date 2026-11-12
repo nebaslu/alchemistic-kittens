@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { WORLDS } from '../game/data/worlds';
 import {
-  MEDAL_EMOJI,
+  MEDAL_COLOR,
+  MEDAL_LABEL,
   currentUser,
   medalFor,
   recordResult,
@@ -15,7 +16,7 @@ export interface ResultsData {
 }
 
 const CAN_COLORS = [0xcd7f32, 0xc0c0c0, 0xffd700];
-const CAN_LABELS = ['🥉 Bronce', '🥈 Plata', '🥇 Oro'];
+const CAN_LABELS = ['Atún bronce', 'Atún plata', 'Atún oro'];
 
 export class ResultsScene extends Phaser.Scene {
   private d!: ResultsData;
@@ -61,14 +62,24 @@ export class ResultsScene extends Phaser.Scene {
         color: '#ffffff',
       })
       .setOrigin(0.5);
-    this.add
-      .text(
-        480,
-        185,
-        medal ? `Medalla conseguida: ${MEDAL_EMOJI[medal]} ${medal.toUpperCase()}` : 'Sin medalla esta vez',
-        { fontFamily: 'monospace', fontSize: '20px', color: medal ? '#ffd75e' : '#ff6b6b' },
-      )
-      .setOrigin(0.5);
+    if (medal) {
+      this.add.image(345, 185, 'fish').setTint(MEDAL_COLOR[medal]).setScale(1.8);
+      this.add
+        .text(380, 185, `Atún de ${MEDAL_LABEL[medal]} conseguido`, {
+          fontFamily: 'monospace',
+          fontSize: '20px',
+          color: '#ffd75e',
+        })
+        .setOrigin(0, 0.5);
+    } else {
+      this.add
+        .text(480, 185, 'Sin atún esta vez', {
+          fontFamily: 'monospace',
+          fontSize: '20px',
+          color: '#ff6b6b',
+        })
+        .setOrigin(0.5);
+    }
 
     if (screen) this.drawCans(480, 300, d.cans, screen.medals);
 
