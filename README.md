@@ -27,9 +27,9 @@ El contenedor se publica solo en loopback (`127.0.0.1`), no se expone a la red. 
 
 1. **Login**: usuario y contraseña (demo local: cualquier valor; la sesión se guarda en `localStorage`).
 2. **Menú principal**: Jugar (→ partidas) o Salir (cierra sesión → login).
-3. **Partidas**: rascadores (demo: 1, el 🗼 Rascador de la Torre del Mago) con 3 pantallas cada uno. La primera pantalla está desbloqueada; las siguientes se desbloquean al conseguir **plata 🥈** en la pantalla anterior. Al pulsar una pantalla desbloqueada aparece un **modal** con *Empezar partida* o *Cerrar*. Botón *← Volver* regresa al menú principal.
+3. **Partidas**: rascadores (demo: 1, el 🗼 Rascador de la Torre del Mago) con 3 pantallas cada uno. La primera pantalla está desbloqueada; las siguientes se desbloquean al conseguir el **atún de plata** (🐟 teñido de plata) en la pantalla anterior. Al pulsar una pantalla desbloqueada aparece un **modal** con *Empezar partida* o *Cerrar*. Botón *← Volver* regresa al menú principal.
 4. **Partida**: duración fija de **3 min** (sin vidas). Al acabarse el tiempo → pantalla de resultados.
-5. **Resultados**: rascador con 3 latas de atún (🥉 bronce / 🥈 plata / 🥇 oro) y contadores **N/M** (N = latas ganadas, M = mínimo para esa medalla). Al llegar N = M y seguir creciendo, se llena la siguiente lata; solo la de oro puede superar su M. Abajo: **Volver a jugar** o **Salir** (→ partidas).
+5. **Resultados**: rascador con 3 latas de atún coloreadas (**atún de bronce** / **atún de plata** / **atún de oro**) y contadores **N/M** (N = latas ganadas, M = mínimo para ese atún). Al llegar N = M y seguir creciendo, se llena la siguiente lata; solo la de oro puede superar su M. Abajo: **Volver a jugar** o **Salir** (→ partidas).
 
 ## Cómo se juega la partida
 
@@ -42,8 +42,8 @@ El contenedor se publica solo en loopback (`127.0.0.1`), no se expone a la red. 
 
 - `src/main.ts` — config Phaser (960×640, FIT, pixelArt, DOM para el login).
 - `src/scenes/` — Boot, Login, MainMenu, Partidas (con modal), Game, UIScene (HUD), Results.
-- `src/game/` — `Player`, `Station`, `Cauldron`, `OrderSystem`, `Fx` (SFX WebAudio + partículas), `progress.ts` (sesión y medallas por usuario).
-- `src/game/data/` — `ingredients.ts`, `recipes.ts`, `worlds.ts` (rascadores → pantallas → pedidos, layout y umbrales de medallas; datos puros, editables).
+- `src/game/` — `Player`, `Station`, `Cauldron`, `OrderSystem`, `Fx` (SFX WebAudio + partículas), `progress.ts` (sesión y atunes bronce/plata/oro por usuario).
+- `src/game/data/` — `ingredients.ts`, `recipes.ts`, `worlds.ts` (rascadores → pantallas → pedidos, layout y umbrales de atún; datos puros, editables).
 - `docs/GDD.md` — diseño del juego.
 
 Los assets visuales son procedurales (Graphics de Phaser + emoji) para que la demo no dependa de archivos externos.

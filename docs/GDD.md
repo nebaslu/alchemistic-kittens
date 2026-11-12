@@ -23,13 +23,13 @@ Jugador casual web (sesiones de 2–10 min), escritorio y móvil; Phaser.js + Ty
 ## Progresión (demo: 3 pantallas en el rascador 🗼)
 Los pedidos llegan en flujo continuo durante los 3 min de partida (pool aleatorio por pantalla, hasta `maxActiveOrders` activos a la vez):
 
-| Pantalla | Pool de recetas | Activos | Complejidad | Medallas 🐟 🥉/🥈/🥇 |
+| Pantalla | Pool de recetas | Activos | Complejidad | Atún 🐟 bronce/plata/oro (umbral en latas) |
 |---|---|---|---|---|
 | 1 · Sótano | Ronroneo ★ (70 s) | 1 | 1 ingrediente, sin quema | 150 / 300 / 500 |
 | 2 · Sala del caldero | Ronroneo ★ 80 s, Anti-Pelos ★★ 95 s, Sirena ★★ 95 s | 2 | 2 ingredientes, quema 28–30 s | 200 / 400 / 650 |
 | 3 · Ático | Anti-Pelos ★★ 85 s, Sirena ★★ 85 s, Gato Montés ★★★ 100 s, Ronroneo ★ 70 s | 3 | 3 ingredientes, quema 24 s | 120 / 250 / 400 |
 
-Balance: propina = segundos restantes del pedido × 1.5 🐟 (regla fija). Una entrega rápida de 70 s da ~100 🐟; en 180 s caben unas 6–8 entregas en pantalla 1 (~500–700 🐟 si se juega bien), por eso los umbrales de medalla están en cientos, no en decenas.
+Balance: propina = segundos restantes del pedido × 1.5 🐟 (regla fija). Una entrega rápida de 70 s da ~100 🐟; en 180 s caben unas 6–8 entregas en pantalla 1 (~500–700 🐟 si se juega bien), por eso los umbrales de atún están en cientos, no en decenas.
 
 ## Esquema de navegación
 
@@ -44,7 +44,7 @@ Boot ──► Login ──► Menú principal ──[Jugar]──► Partidas (
                                               Partida (3 min, sin vidas)
                                                        │ tiempo agotado
                                                        ▼
-                                              Resultados (latas N/M 🥉🥈🥇)
+                                              Resultados (latas N/M de atún bronce/plata/oro)
                                                        │ ↻ Volver a jugar → Partida (misma pantalla)
                                                        │ ↩ Salir → Partidas
 ```
@@ -52,8 +52,8 @@ Boot ──► Login ──► Menú principal ──[Jugar]──► Partidas (
 ## Flujo de menús y progresión entre pantallas
 - **Login** (usuario/contraseña, demo local en `localStorage`) → **menú principal** (Jugar / Salir) → **partidas** (rascadores; demo: 1 rascador 🗼 con 3 pantallas) → modal *Empezar/Cerrar* → **partida** → **resultados**.
 - Cada partida dura **3 min** fijos; no hay vidas. Al terminar va a resultados.
-- **Resultados**: 3 latas de atún (bronce/plata/oro) con contador **N/M** (N = latas ganadas, M = umbral de la medalla). Umbrales acumulativos por pantalla; al superar M de una lata, la siguiente empieza a llenarse; solo la de oro puede tener N > M. Botones abajo: *Volver a jugar* y *Salir*.
-- **Desbloqueo**: la pantalla 1 siempre disponible; la pantalla k+1 se desbloquea con medalla de **plata** (o mejor) en la pantalla k. Progreso por usuario en `localStorage` (`ak-progress-<user>`).
+- **Resultados**: 3 latas de atún coloreadas (**atún de bronce** / **atún de plata** / **atún de oro**) con contador **N/M** (N = latas ganadas, M = umbral de ese atún). Umbrales acumulativos por pantalla; al superar M de una lata, la siguiente empieza a llenarse; solo la de oro puede tener N > M. El atún conseguido se muestra como pez teñido 🐟. Botones abajo: *Volver a jugar* y *Salir*.
+- **Desbloqueo**: la pantalla 1 siempre disponible; la pantalla k+1 se desbloquea con **atún de plata** (o de oro) en la pantalla k, mostrado como 🐟 teñido en su tarjeta. Progreso por usuario en `localStorage` (`ak-progress-<user>`).
 - Navegación: Volver en partidas → menú principal; Salir en principal → login.
 
 ## Controles
