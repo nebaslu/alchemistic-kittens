@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { LEVELS, type LevelDef } from '../game/data/levels';
+import { WORLDS, type ScreenDef, type WorldDef } from '../game/data/worlds';
 import { INGREDIENTS } from '../game/data/ingredients';
 import { RECIPES } from '../game/data/recipes';
 import { Player } from '../game/Player';
@@ -20,7 +20,7 @@ export interface HudState {
   levelName: string;
   score: number;
   cans: number;
-  hearts: number;
+  timeLeft: number;
   orders: HudOrder[];
   held: string;
   hint: string;
@@ -29,21 +29,20 @@ export interface HudState {
   progressLabel: string;
 }
 
-const BEST_KEY = 'ak-best-level';
-
 export class GameScene extends Phaser.Scene {
-  private levelIndex = 0;
-  private level!: LevelDef;
+  private world!: WorldDef;
+  private screen!: ScreenDef;
   private player!: Player;
   private stations: Station[] = [];
   private cauldron!: Cauldron;
   private orders!: OrderSystem;
   private score = 0;
   private cans = 0;
-  private hearts = 0;
+  private timeLeft = 0;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: Record<string, Phaser.Input.Keyboard.Key>;
   private keyE!: Phaser.Input.Keyboard.Key;
+  private keyQ!: Phaser.Input.Keyboard.Key;
   private holdStation: Station | null = null;
   private holdProgress = 0;
   private readonly holdNeeded = 1.0;
@@ -53,7 +52,7 @@ export class GameScene extends Phaser.Scene {
     levelName: '',
     score: 0,
     cans: 0,
-    hearts: 0,
+    timeLeft: 0,
     orders: [],
     held: '',
     hint: '',
@@ -66,41 +65,46 @@ export class GameScene extends Phaser.Scene {
     super('GameScene');
   }
 
-  init(data: { level?: number }): void {
-    this.levelIndex = data.level ?? 0;
+  init(data: { worldId: string; screenId: string }): void {
+    this.world = WORLDS.find((w) => w.id === data.worldId) ?? WORLDS[0];
+    this.screen =
+      this.world.screens.find((s) => s.id === data.screenId) ?? this.world.screens[0];
   }
 
   create(): void {
-    this.level = LEVELS[this.levelIndex];
-    this.hearts = this.level.hearts;
     this.score = 0;
     this.cans = 0;
     this.over = false;
     this.holdStation = null;
     this.holdProgress = 0;
+    this.timeLeft = this.screen.duration;
     this.hint = 'Coge un ingrediente del puesto superior (E junto a él)';
     this.buildFloor();
-    this.stations = this.level.layout
+    this.stations = this.screen.layout
       .filter((l) => l.kind !== 'cauldron')
       .map((l) => new Station(this, l.kind, l.x, l.y, l.ingredient, l.label));
-    const c = this.level.layout.find((l) => l.kind === 'cauldron');
+    const c = this.screen.layout.find((l) => l.kind === 'cauldron');
     this.cauldron = new Cauldron(this, c ? c.x : 480, c ? c.y : 340);
     this.stations.push(this.cauldron.station);
-    this.player = new Player(this, 480, 540);
-    this.orders = new OrderSystem(this.level);
+    this.player = new Player(this, 480, 560);
+    this.orders = new OrderSystem({
+      orders: this.screen.orders,
+      maxActiveOrders: this.screen.maxActiveOrders,
+    });
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.wasd = this.input.keyboard!.addKeys('W,A,S,D') as Record<
       string,
       Phaser.Input.Keyboard.Key
     >;
     this.keyE = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
-    this.hud.levelName = this.level.name;
+    this.keyQ = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
+    this.hud.levelName = this.screen.name;
     this.registry.set('hud', this.hud);
     this.scene.launch('UIScene');
     const banner = this.add
-      .text(480, 300, this.level.name, {
+      .text(480, 300, `${this.world.emoji} ${this.screen.name}`, {
         fontFamily: 'monospace',
-        fontSize: '34px',
+        fontSize: '30px',
         color: '#ffd75e',
         stroke: '#000000',
         strokeThickness: 6,
@@ -121,6 +125,11 @@ export class GameScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     const dt = delta / 1000;
     if (!this.over) {
+      this.timeLeft -= dt;
+      if (this.timeLeft <= 0) {
+        this.timeLeft = 0;
+        this.endMatch();
+      }
       this.player.update(
         dt,
         {
@@ -142,6 +151,7 @@ export class GameScene extends Phaser.Scene {
       );
       this.orders.update(dt, (o) => this.onOrderExpire(o));
       this.handleInteract(dt);
+      if (Phaser.Input.Keyboard.JustDown(this.keyQ)) this.dropItem();
     }
     this.refreshHud();
   }
@@ -219,10 +229,9 @@ export class GameScene extends Phaser.Scene {
               '#ffd75e',
             );
             this.setHint(`¡Entregado! ${res.recipe.name} 🧪`);
-            if (this.orders.allDone) this.levelComplete();
           } else {
             Fx.sfx('fail');
-            this.setHint('Ningún pedido espera esa poción ahora');
+            this.setHint('Ningún pedido espera esa poción ahora (Q para tirarla)');
           }
         } else {
           this.setHint('Lleva la poción 🧪 al expendedor 🛒');
@@ -265,6 +274,10 @@ export class GameScene extends Phaser.Scene {
               ? 'Mantén E para limpiar con la varita 🪄'
               : '¡Explotó! Coge la varita 🪄 del soporte y vuelve',
           );
+        } else if (this.cauldron.state === 'cooking' && !item) {
+          this.cauldron.clear();
+          Fx.sfx('drop');
+          this.setHint('Mezcla tirada. El caldero vuelve a estar vacío 🍲');
         } else {
           this.setHint('El caldero está vacío: echa un ingrediente de un pedido activo');
         }
@@ -296,6 +309,20 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private dropItem(): void {
+    const item = this.player.item;
+    if (!item) return;
+    this.player.item = null;
+    Fx.sfx('drop');
+    const label =
+      item.kind === 'potion'
+        ? 'la poción 🧪'
+        : item.kind === 'wand'
+          ? 'la varita 🪄'
+          : `${INGREDIENTS[item.ingredient!].name} ${INGREDIENTS[item.ingredient!].emoji}`;
+    this.setHint(`Tiraste ${label} (Q)`);
+  }
+
   private completeProcess(): void {
     const item = this.player.item;
     this.holdStation = null;
@@ -317,33 +344,21 @@ export class GameScene extends Phaser.Scene {
   }
 
   private onOrderExpire(o: Order): void {
-    this.hearts--;
     Fx.sfx('fail');
-    Fx.floatingText(this, 480, 120, `Pedido expirado: ${o.recipe.name} ${o.recipe.emoji} 💔`, '#ff6b6b');
-    this.setHint(`Se acabó el tiempo de ${o.recipe.name}. ¡Quedan ${this.hearts} corazones!`);
-    if (this.hearts <= 0) this.gameOver();
+    Fx.floatingText(this, 480, 130, `Pedido expirado: ${o.recipe.name} ${o.recipe.emoji}`, '#ff6b6b');
+    this.setHint(`Se acabó el tiempo de ${o.recipe.name}. ¡A por el siguiente!`);
   }
 
-  private levelComplete(): void {
+  private endMatch(): void {
+    if (this.over) return;
     this.over = true;
-    const next = this.levelIndex + 1;
-    const best = Number(localStorage.getItem(BEST_KEY) ?? 0);
-    if (next > best) localStorage.setItem(BEST_KEY, String(next));
-    if (next < LEVELS.length) {
-      Fx.sfx('deliver');
-      this.time.delayedCall(1600, () => this.scene.start('GameScene', { level: next }));
-    } else {
-      this.time.delayedCall(1200, () =>
-        this.scene.start('EndScene', { win: true, level: this.levelIndex, score: this.score, cans: this.cans }),
-      );
-    }
-  }
-
-  private gameOver(): void {
-    this.over = true;
-    this.time.delayedCall(1200, () =>
-      this.scene.start('EndScene', { win: false, level: this.levelIndex, score: this.score, cans: this.cans }),
-    );
+    this.scene.stop('UIScene');
+    this.scene.start('ResultsScene', {
+      worldId: this.world.id,
+      screenId: this.screen.id,
+      score: this.score,
+      cans: this.cans,
+    });
   }
 
   private setHint(text: string): void {
@@ -354,7 +369,7 @@ export class GameScene extends Phaser.Scene {
     const h = this.hud;
     h.score = this.score;
     h.cans = this.cans;
-    h.hearts = this.hearts;
+    h.timeLeft = Math.max(0, this.timeLeft);
     h.held = this.player.item ? Player.itemEmoji(this.player.item) : '';
     h.hint = this.hint;
     h.orders = this.orders.active.map((o) => {

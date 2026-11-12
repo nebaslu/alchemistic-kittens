@@ -108,6 +108,17 @@ export class Cauldron {
     this.refreshVisual();
   }
 
+  clear(): void {
+    if (this.state === 'empty' || this.state === 'exploded') return;
+    this.state = 'empty';
+    this.contents.length = 0;
+    this.recipe = null;
+    this.cookLeft = 0;
+    this.burnLeft = 0;
+    this.station.setEmoji('🍲');
+    this.refreshVisual();
+  }
+
   takePotion(): string | null {
     if (this.state !== 'ready' || !this.recipe) return null;
     const id = this.recipe.id;

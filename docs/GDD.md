@@ -27,6 +27,31 @@ Jugador casual web (sesiones de 2–10 min), escritorio y móvil; Phaser.js + Ty
 | 2 · Oficial | Ronroneo ★, Antídoto Anti-Pelos ★★, Dulce Lágrima de Sirena ★★ | 2 | 2 ingredientes, quema a los 28–30 s |
 | 3 · Maestro | Anti-Pelos ★★, Sirena ★★, Poción del Gato Montés ★★★, Ronroneo ★ | 3 | 3 ingredientes, quema a los 24 s |
 
+## Esquema de navegación
+
+```
+Boot ──► Login ──► Menú principal ──[Jugar]──► Partidas (rascadores 🗼)
+           ▲          │                            │  ▲
+           │          │[Salir]                     │  │[← Volver]
+           └──────────┘                            ▼  │
+                                             Modal: [▶ Empezar] / [✖ Cerrar]
+                                                       │ Empezar
+                                                       ▼
+                                              Partida (3 min, sin vidas)
+                                                       │ tiempo agotado
+                                                       ▼
+                                              Resultados (latas N/M 🥉🥈🥇)
+                                                       │ ↻ Volver a jugar → Partida (misma pantalla)
+                                                       │ ↩ Salir → Partidas
+```
+
+## Flujo de menús y progresión entre pantallas
+- **Login** (usuario/contraseña, demo local en `localStorage`) → **menú principal** (Jugar / Salir) → **partidas** (rascadores; demo: 1 rascador 🗼 con 3 pantallas) → modal *Empezar/Cerrar* → **partida** → **resultados**.
+- Cada partida dura **3 min** fijos; no hay vidas. Al terminar va a resultados.
+- **Resultados**: 3 latas de atún (bronce/plata/oro) con contador **N/M** (N = latas ganadas, M = umbral de la medalla). Umbrales acumulativos por pantalla; al superar M de una lata, la siguiente empieza a llenarse; solo la de oro puede tener N > M. Botones abajo: *Volver a jugar* y *Salir*.
+- **Desbloqueo**: la pantalla 1 siempre disponible; la pantalla k+1 se desbloquea con medalla de **plata** (o mejor) en la pantalla k. Progreso por usuario en `localStorage` (`ak-progress-<user>`).
+- Navegación: Volver en partidas → menú principal; Salir en principal → login.
+
 ## Controles
 WASD / flechas = moverse · **E** = interactuar (mantener E = moler / cortar / limpiar).
 

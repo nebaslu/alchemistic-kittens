@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "npm run build && node scripts/check-scenes.mjs",
+    "test:scenes": "node scripts/check-scenes.mjs"
   },
   "dependencies": {
     "phaser": "^3.90.0"

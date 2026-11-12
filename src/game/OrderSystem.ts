@@ -1,5 +1,5 @@
 import { RECIPES, type Recipe } from './data/recipes';
-import type { LevelDef } from './data/levels';
+import type { OrderDef } from './data/worlds';
 
 export interface Order {
   recipe: Recipe;
@@ -18,18 +18,19 @@ export interface DeliverResult {
 export class OrderSystem {
   active: Order[] = [];
   delivered = 0;
+  expired = 0;
   private readonly queue: { recipeId: string; timeLimit: number }[];
   private readonly maxActive: number;
   private readonly total: number;
 
-  constructor(level: LevelDef) {
-    this.queue = [...level.orders];
-    this.total = level.orders.length;
-    this.maxActive = level.maxActiveOrders;
+  constructor(def: { orders: OrderDef[]; maxActiveOrders: number }) {
+    this.queue = [...def.orders];
+    this.total = def.orders.length;
+    this.maxActive = def.maxActiveOrders;
   }
 
   get allDone(): boolean {
-    return this.delivered === this.total;
+    return this.delivered + this.expired === this.total;
   }
 
   update(dt: number, onExpire: (o: Order) => void): void {
@@ -47,6 +48,7 @@ export class OrderSystem {
       o.timeLeft -= dt;
       if (o.timeLeft <= 0) {
         this.active.splice(i, 1);
+        this.expired++;
         onExpire(o);
       }
     }
