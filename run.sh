@@ -3,6 +3,7 @@ set -euo pipefail
 
 IMAGE="alchemistic-kittens:latest"
 PORT="${PORT:-8080}"
+BIND="${BIND:-127.0.0.1}"
 
 cd "$(dirname "$0")"
 

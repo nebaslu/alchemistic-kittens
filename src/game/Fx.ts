@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { getConfig } from './config';
 
 export type SfxName =
   | 'pickup'
@@ -11,11 +12,42 @@ export type SfxName =
   | 'explode'
   | 'clean';
 
+const MUSIC_KEY = 'ak-vol-music';
+const SFX_KEY = 'ak-vol-sfx';
+
 export class Fx {
   private static audio: AudioContext | null = null;
+  private static sfxGain: GainNode | null = null;
+  private static musicGain: GainNode | null = null;
+  private static musicTimer: number | null = null;
+  private static musicStep = 0;
   static readonly reducedMotion =
     typeof window !== 'undefined' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  static volumes(): { music: number; sfx: number } {
+    const cfg = getConfig().audio;
+    const music = Number(localStorage.getItem(MUSIC_KEY) ?? cfg.musicVolume);
+    const sfx = Number(localStorage.getItem(SFX_KEY) ?? cfg.sfxVolume);
+    return {
+      music: Number.isFinite(music) ? music : cfg.musicVolume,
+      sfx: Number.isFinite(sfx) ? sfx : cfg.sfxVolume,
+    };
+  }
+
+  static setMusicVolume(v: number): void {
+    localStorage.setItem(MUSIC_KEY, String(v));
+    if (Fx.musicGain && Fx.audio) {
+      Fx.musicGain.gain.setTargetAtTime(v, Fx.audio.currentTime, 0.05);
+    }
+  }
+
+  static setSfxVolume(v: number): void {
+    localStorage.setItem(SFX_KEY, String(v));
+    if (Fx.sfxGain && Fx.audio) {
+      Fx.sfxGain.gain.setTargetAtTime(v, Fx.audio.currentTime, 0.05);
+    }
+  }
 
   static initAudio(): void {
     if (!Fx.audio) {
@@ -23,10 +55,63 @@ export class Fx {
         Fx.audio = new AudioContext();
       } catch {
         Fx.audio = null;
+        return;
       }
+      Fx.sfxGain = Fx.audio.createGain();
+      Fx.sfxGain.connect(Fx.audio.destination);
+      Fx.musicGain = Fx.audio.createGain();
+      Fx.musicGain.connect(Fx.audio.destination);
+      const vols = Fx.volumes();
+      Fx.sfxGain.gain.value = vols.sfx;
+      Fx.musicGain.gain.value = vols.music;
     }
-    if (Fx.audio && Fx.audio.state === 'suspended') {
+    if (Fx.audio.state === 'suspended') {
       void Fx.audio.resume();
+    }
+  }
+
+  static startMusic(): void {
+    Fx.initAudio();
+    if (!Fx.audio || Fx.musicTimer !== null) return;
+    const pattern = [220, 261.63, 329.63, 261.63, 196, 246.94, 293.66, 246.94];
+    Fx.musicTimer = window.setInterval(() => {
+      const ctx = Fx.audio;
+      const gain = Fx.musicGain;
+      if (!ctx || !gain) return;
+      const t = ctx.currentTime + 0.05;
+      const freq = pattern[Fx.musicStep % pattern.length];
+      Fx.musicStep++;
+      const osc = ctx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.12, t + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.42);
+      osc.connect(g);
+      g.connect(gain);
+      osc.start(t);
+      osc.stop(t + 0.45);
+      if (Fx.musicStep % 8 === 0) {
+        const bass = ctx.createOscillator();
+        bass.type = 'sine';
+        bass.frequency.value = freq / 2;
+        const bg = ctx.createGain();
+        bg.gain.setValueAtTime(0.0001, t);
+        bg.gain.exponentialRampToValueAtTime(0.1, t + 0.1);
+        bg.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+        bass.connect(bg);
+        bg.connect(gain);
+        bass.start(t);
+        bass.stop(t + 1.7);
+      }
+    }, 420);
+  }
+
+  static stopMusic(): void {
+    if (Fx.musicTimer !== null) {
+      window.clearInterval(Fx.musicTimer);
+      Fx.musicTimer = null;
     }
   }
 
@@ -39,7 +124,7 @@ export class Fx {
     slideTo?: number,
   ): void {
     const ctx = Fx.audio;
-    if (!ctx) return;
+    if (!ctx || !Fx.sfxGain) return;
     const t = ctx.currentTime + when;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -51,14 +136,14 @@ export class Fx {
     gain.gain.setValueAtTime(vol, t);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     osc.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(Fx.sfxGain);
     osc.start(t);
     osc.stop(t + dur + 0.02);
   }
 
   private static noise(dur: number, vol = 0.22, when = 0): void {
     const ctx = Fx.audio;
-    if (!ctx) return;
+    if (!ctx || !Fx.sfxGain) return;
     const t = ctx.currentTime + when;
     const len = Math.floor(ctx.sampleRate * dur);
     const buf = ctx.createBuffer(1, len, ctx.sampleRate);
@@ -76,7 +161,7 @@ export class Fx {
     gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     src.connect(filter);
     filter.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(Fx.sfxGain);
     src.start(t);
   }
 

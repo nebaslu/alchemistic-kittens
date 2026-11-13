@@ -11,6 +11,13 @@
     "processSeconds": 1.0,
     "cleanSeconds": 1.5
   },
+  "cauldron": {
+    "readyExplodeSeconds": 10
+  },
+  "audio": {
+    "musicVolume": 0.7,
+    "sfxVolume": 0.8
+  },
   "screens": {
     "torre-s1": { "durationSeconds": 180 },
     "torre-s2": { "durationSeconds": 180 },

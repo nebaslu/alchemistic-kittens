@@ -4,10 +4,8 @@ import type { Station } from './Station';
 import { INGREDIENTS } from './data/ingredients';
 
 export interface MoveInput {
-  up: boolean;
-  down: boolean;
-  left: boolean;
-  right: boolean;
+  x: number;
+  y: number;
 }
 
 export class Player {
@@ -31,15 +29,12 @@ export class Player {
   }
 
   update(dt: number, input: MoveInput, stations: Station[]): void {
-    let vx = 0;
-    let vy = 0;
-    if (input.left) vx -= 1;
-    if (input.right) vx += 1;
-    if (input.up) vy -= 1;
-    if (input.down) vy += 1;
-    if (vx !== 0 && vy !== 0) {
-      vx *= Math.SQRT1_2;
-      vy *= Math.SQRT1_2;
+    let vx = input.x;
+    let vy = input.y;
+    const mag = Math.hypot(vx, vy);
+    if (mag > 1) {
+      vx /= mag;
+      vy /= mag;
     }
     const nx = this.x + vx * this.speed * dt;
     const ny = this.y + vy * this.speed * dt;

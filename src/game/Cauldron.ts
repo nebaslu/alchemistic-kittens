@@ -3,6 +3,7 @@ import type { CauldronState, IngredientId } from './types';
 import { INGREDIENTS } from './data/ingredients';
 import type { Recipe } from './data/recipes';
 import { Station } from './Station';
+import { getConfig } from './config';
 
 export type AddResult = 'ok' | 'wrong' | 'needsPrep' | 'busy';
 
@@ -86,6 +87,7 @@ export class Cauldron {
         if (this.cookLeft <= 0) {
           this.cookLeft = 0;
           this.state = 'ready';
+          this.burnLeft = getConfig().cauldron.readyExplodeSeconds;
           onReady();
         }
       }
@@ -103,7 +105,7 @@ export class Cauldron {
     this.recipe = null;
     this.cookLeft = 0;
     this.cleanProgress = 0;
-    this.station.setEmoji('💥');
+    this.station.setIcon('cauldron-boom');
     if (onExplode) onExplode();
     this.refreshVisual();
   }
@@ -115,7 +117,7 @@ export class Cauldron {
     this.recipe = null;
     this.cookLeft = 0;
     this.burnLeft = 0;
-    this.station.setEmoji('🍲');
+    this.station.setIcon('cauldron');
     this.refreshVisual();
   }
 
@@ -136,7 +138,7 @@ export class Cauldron {
     if (this.cleanProgress >= 1) {
       this.state = 'empty';
       this.cleanProgress = 0;
-      this.station.setEmoji('🍲');
+      this.station.setIcon('cauldron');
       this.refreshVisual();
       return true;
     }
@@ -145,10 +147,9 @@ export class Cauldron {
   }
 
   private refreshVisual(): void {
-    if (this.state !== 'exploded') {
-      if (this.state === 'ready') this.station.setEmoji('🧪');
-      else this.station.setEmoji('🍲');
-    }
+    if (this.state === 'exploded') this.station.setIcon('cauldron-boom');
+    else if (this.state === 'ready') this.station.setIcon('cauldron-ready');
+    else this.station.setIcon('cauldron');
     let status = '';
     if (this.state === 'cooking') {
       const icons = this.contents.map((c) => INGREDIENTS[c].emoji).join(' ');

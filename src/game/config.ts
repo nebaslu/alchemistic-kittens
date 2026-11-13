@@ -13,6 +13,13 @@ export interface GameConfig {
     processSeconds: number;
     cleanSeconds: number;
   };
+  cauldron: {
+    readyExplodeSeconds: number;
+  };
+  audio: {
+    musicVolume: number;
+    sfxVolume: number;
+  };
   screens: Record<string, { durationSeconds?: number }>;
   medals: Record<string, MedalThresholds>;
 }
@@ -21,6 +28,8 @@ export const DEFAULT_CONFIG: GameConfig = {
   match: { durationSeconds: 180, tipMultiplier: 1.5 },
   player: { speed: 235 },
   interaction: { distance: 92, processSeconds: 1.0, cleanSeconds: 1.5 },
+  cauldron: { readyExplodeSeconds: 10 },
+  audio: { musicVolume: 0.7, sfxVolume: 0.8 },
   screens: {},
   medals: {
     'torre-s1': { bronze: 150, silver: 300, gold: 500 },
@@ -42,6 +51,8 @@ export async function loadConfig(): Promise<GameConfig> {
       match: { ...DEFAULT_CONFIG.match, ...raw.match },
       player: { ...DEFAULT_CONFIG.player, ...raw.player },
       interaction: { ...DEFAULT_CONFIG.interaction, ...raw.interaction },
+      cauldron: { ...DEFAULT_CONFIG.cauldron, ...raw.cauldron },
+      audio: { ...DEFAULT_CONFIG.audio, ...raw.audio },
       screens: { ...raw.screens },
       medals: { ...DEFAULT_CONFIG.medals, ...raw.medals },
     };

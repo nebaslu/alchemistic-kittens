@@ -11,7 +11,10 @@ import {
   type Medal,
 } from '../game/progress';
 import { getConfig, screenDuration, screenMedals } from '../game/config';
-import { startGame, stopGame } from '../game/session';
+import { startGame, stopGame, setPaused } from '../game/session';
+import { Fx } from '../game/Fx';
+import { isTouchDevice } from '../game/touch';
+import { initFullscreenButtons, isFullscreenSupported } from './fullscreen';
 import { showHud, hideHud } from './hud';
 
 const $ = (id: string): HTMLElement => document.getElementById(id) as HTMLElement;
@@ -19,6 +22,7 @@ const $ = (id: string): HTMLElement => document.getElementById(id) as HTMLElemen
 let selectedWorld: WorldDef = WORLDS[0];
 let modalScreen: ScreenDef | null = null;
 let lastMatch: { worldId: string; screenId: string } | null = null;
+let paused = false;
 
 function show(id: string): void {
   document.querySelectorAll('.screen').forEach((s) => s.classList.add('hidden'));
@@ -42,6 +46,8 @@ export function initUI(): void {
     }
     localStorage.setItem(USER_KEY, user);
     $('login-error').textContent = '';
+    Fx.initAudio();
+    Fx.startMusic();
     openMenu();
   });
 
@@ -54,6 +60,31 @@ export function initUI(): void {
     show('screen-login');
   });
   $('btn-back-menu').addEventListener('click', () => openMenu());
+  $('btn-sound').addEventListener('click', () => openSoundPanel());
+
+  $('hud-pause').addEventListener('click', () => togglePause());
+  $('btn-resume').addEventListener('click', () => togglePause());
+  $('btn-pause-sound').addEventListener('click', () => openSoundPanel());
+  $('btn-quit').addEventListener('click', () => quitToPartidas());
+  $('btn-sound-close').addEventListener('click', () => $('sound-overlay').classList.add('hidden'));
+
+  const vols = Fx.volumes();
+  const musicSlider = $('vol-music') as HTMLInputElement;
+  const sfxSlider = $('vol-sfx') as HTMLInputElement;
+  musicSlider.value = String(Math.round(vols.music * 100));
+  sfxSlider.value = String(Math.round(vols.sfx * 100));
+  syncSoundLabels();
+  musicSlider.addEventListener('input', () => {
+    Fx.setMusicVolume(Number(musicSlider.value) / 100);
+    syncSoundLabels();
+  });
+  sfxSlider.addEventListener('input', () => {
+    Fx.setSfxVolume(Number(sfxSlider.value) / 100);
+    Fx.sfx('pickup');
+    syncSoundLabels();
+  });
+
+  window.addEventListener('ak:togglepause', () => togglePause());
 
   $('modal-close').addEventListener('click', closeModal);
   $('modal-start').addEventListener('click', () => {
@@ -79,6 +110,20 @@ export function initUI(): void {
     onGameOver(d);
   });
 
+  window.addEventListener('pointerdown', () => {
+    Fx.initAudio();
+  }, { once: true });
+
+  window.addEventListener('resize', updateRotateOverlay);
+  window.addEventListener('orientationchange', updateRotateOverlay);
+
+  initFullscreenButtons(() => {
+    const hint = $('fs-hint');
+    hint.classList.remove('hidden');
+    window.setTimeout(() => hint.classList.add('hidden'), 5000);
+  });
+  if (!isFullscreenSupported()) $('fs-hint').classList.remove('hidden');
+
   const existing = localStorage.getItem(USER_KEY);
   if (existing) openMenu();
   else show('screen-login');
@@ -89,11 +134,57 @@ function openMenu(): void {
   show('screen-menu');
 }
 
+function syncSoundLabels(): void {
+  const vols = Fx.volumes();
+  $('music-val').textContent = `${Math.round(vols.music * 100)}%`;
+  $('sfx-val').textContent = `${Math.round(vols.sfx * 100)}%`;
+}
+
+function openSoundPanel(): void {
+  const vols = Fx.volumes();
+  ($('vol-music') as HTMLInputElement).value = String(Math.round(vols.music * 100));
+  ($('vol-sfx') as HTMLInputElement).value = String(Math.round(vols.sfx * 100));
+  syncSoundLabels();
+  $('sound-overlay').classList.remove('hidden');
+}
+
+function togglePause(): void {
+  paused = !paused;
+  setPaused(paused);
+  if (paused) {
+    Fx.stopMusic();
+    $('pause-overlay').classList.remove('hidden');
+  } else {
+    Fx.startMusic();
+    $('pause-overlay').classList.add('hidden');
+  }
+}
+
+function quitToPartidas(): void {
+  paused = false;
+  setPaused(false);
+  stopGame();
+  hideHud();
+  $('game').classList.add('hidden');
+  $('pause-overlay').classList.add('hidden');
+  renderPartidas();
+  show('screen-partidas');
+}
+
 function startMatch(worldId: string, screenId: string): void {
   document.querySelectorAll('.screen').forEach((s) => s.classList.add('hidden'));
   $('game').classList.remove('hidden');
   showHud();
+  updateRotateOverlay();
   startGame(worldId, screenId);
+}
+
+function updateRotateOverlay(): void {
+  const el = $('rotate-overlay');
+  const inMatch = !$('game').classList.contains('hidden');
+  const portrait = window.innerHeight > window.innerWidth;
+  if (inMatch && isTouchDevice() && portrait) el.classList.remove('hidden');
+  else el.classList.add('hidden');
 }
 
 function onGameOver(d: { worldId: string; screenId: string; score: number; cans: number }): void {

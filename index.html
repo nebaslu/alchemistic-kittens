@@ -2,7 +2,10 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Alchemistic Kittens</title>
     <style>
       :root {
@@ -165,6 +168,42 @@
       #hud-time.low {
         color: #ff6b6b;
       }
+      #hud-pause {
+        pointer-events: auto;
+        min-height: 36px;
+        font-size: 15px;
+        padding: 4px 12px;
+      }
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 60;
+      }
+      .overlay .card {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        min-width: 320px;
+      }
+      .slider-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        width: 260px;
+      }
+      .slider-row label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+      }
+      input[type='range'] {
+        width: 260px;
+      }
       #hud-orders {
         position: absolute;
         top: 60px;
@@ -271,10 +310,105 @@
       .subtitle {
         color: #cfc4e8;
       }
+      #touch-controls {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 20;
+      }
+      #joy-base {
+        position: absolute;
+        left: 36px;
+        bottom: 60px;
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.12);
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        pointer-events: auto;
+        touch-action: none;
+      }
+      #joy-stick {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 60px;
+        height: 60px;
+        margin: -30px 0 0 -30px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.45);
+      }
+      #touch-buttons {
+        position: absolute;
+        right: 30px;
+        bottom: 60px;
+        display: flex;
+        gap: 16px;
+        pointer-events: auto;
+      }
+      #touch-buttons button {
+        width: 76px;
+        height: 76px;
+        border-radius: 50%;
+        font-size: 24px;
+        padding: 0;
+        min-height: 0;
+        touch-action: none;
+        user-select: none;
+      }
+      #touch-e {
+        background: #2f9e44;
+        border-color: #7ee081;
+      }
+      #touch-q {
+        background: #3a2f52;
+      }
+      #rotate-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 70;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 22px;
+        padding: 30px;
+      }
+      #game {
+        touch-action: none;
+      }
+      .fs-btn {
+        min-height: 40px;
+        padding: 6px 12px;
+        font-size: 18px;
+      }
+      #btn-fullscreen-global {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 40;
+      }
+      #fs-hint {
+        position: absolute;
+        top: 60px;
+        right: 10px;
+        z-index: 40;
+        background: var(--panel);
+        border: 2px solid var(--accent2);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 12px;
+        max-width: 240px;
+      }
     </style>
   </head>
   <body>
     <div id="app">
+      <button id="btn-fullscreen-global" class="fs-btn secondary" title="Pantalla completa">⛶</button>
+      <div id="fs-hint" class="hidden">
+        En iPhone: botón Compartir → «Añadir a pantalla de inicio» para jugar sin la barra del navegador.
+      </div>
       <section id="screen-login" class="screen">
         <h1>🐱⚗️ Alchemistic Kittens</h1>
         <p class="subtitle">Inicia sesión para entrar a la torre</p>
@@ -299,6 +433,7 @@
         <h1>🗼🐱 Alchemistic Kittens</h1>
         <p class="subtitle" id="menu-user"></p>
         <button id="btn-play">▶ Jugar</button>
+        <button id="btn-sound" class="secondary">🔊 Sonido</button>
         <button id="btn-logout" class="secondary">⏻ Salir</button>
       </section>
 
@@ -341,12 +476,48 @@
           <span id="hud-cans"></span>
           <span id="hud-held"></span>
           <span id="hud-time">3:00</span>
+          <button id="hud-pause" title="Pausa (Esc/P)">⏸</button>
+          <button id="btn-fullscreen" class="fs-btn" title="Pantalla completa">⛶</button>
         </div>
         <div id="hud-orders"></div>
         <div id="hud-progress-label" class="hidden"></div>
         <div id="hud-progress" class="hidden"><div></div></div>
         <div id="hud-hint"></div>
       </div>
+
+      <div id="pause-overlay" class="overlay hidden">
+        <div class="card">
+          <h2>⏸ Pausa</h2>
+          <button id="btn-resume">▶ Continuar</button>
+          <button id="btn-pause-sound" class="secondary">🔊 Sonido</button>
+          <button id="btn-quit" class="secondary">↩ Salir a partidas</button>
+        </div>
+      </div>
+
+      <div id="sound-overlay" class="overlay hidden">
+        <div class="card">
+          <h2>🔊 Sonido</h2>
+          <div class="slider-row">
+            <label><span>🎵 Música</span><span id="music-val"></span></label>
+            <input id="vol-music" type="range" min="0" max="100" />
+          </div>
+          <div class="slider-row">
+            <label><span>🔔 Efectos</span><span id="sfx-val"></span></label>
+            <input id="vol-sfx" type="range" min="0" max="100" />
+          </div>
+          <button id="btn-sound-close" class="secondary">✔ Cerrar</button>
+        </div>
+      </div>
+
+      <div id="touch-controls" class="hidden">
+        <div id="joy-base"><div id="joy-stick"></div></div>
+        <div id="touch-buttons">
+          <button id="touch-q">Q</button>
+          <button id="touch-e">E</button>
+        </div>
+      </div>
+
+      <div id="rotate-overlay" class="hidden">🔄 Gira el dispositivo para jugar en horizontal</div>
 
       <div id="game" class="hidden"></div>
     </div>

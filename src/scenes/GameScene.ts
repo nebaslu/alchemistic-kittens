@@ -10,6 +10,7 @@ import { Fx } from '../game/Fx';
 import { getConfig, screenDuration } from '../game/config';
 import { showHud, hideHud, updateHud, type HudState } from '../ui/hud';
 import { getPendingStart } from '../game/session';
+import { getTouchState, clearTouchJust } from '../game/touch';
 
 export class GameScene extends Phaser.Scene {
   private world!: WorldDef;
@@ -25,9 +26,13 @@ export class GameScene extends Phaser.Scene {
   private wasd!: Record<string, Phaser.Input.Keyboard.Key>;
   private keyE!: Phaser.Input.Keyboard.Key;
   private keyQ!: Phaser.Input.Keyboard.Key;
+  private keyEsc!: Phaser.Input.Keyboard.Key;
+  private keyP!: Phaser.Input.Keyboard.Key;
   private holdStation: Station | null = null;
   private holdProgress = 0;
   private holdNeeded = 1.0;
+  private mortarSlot: { ingredient: import('../game/types').IngredientId; progress: number } | null =
+    null;
   private interactDistance = 92;
   private cleanSeconds = 1.5;
   private over = false;
@@ -63,14 +68,22 @@ export class GameScene extends Phaser.Scene {
     this.over = false;
     this.holdStation = null;
     this.holdProgress = 0;
+    this.mortarSlot = null;
     this.holdNeeded = cfg.interaction.processSeconds;
     this.interactDistance = cfg.interaction.distance;
     this.cleanSeconds = cfg.interaction.cleanSeconds;
     this.timeLeft = screenDuration(this.screen.id);
     this.hint = 'Coge un ingrediente del puesto superior (E junto a él)';
     this.buildFloor();
+    const usedIngredients = new Set(
+      this.screen.pool.flatMap((d) => RECIPES[d.recipeId].steps),
+    );
     this.stations = this.screen.layout
-      .filter((l) => l.kind !== 'cauldron')
+      .filter(
+        (l) =>
+          l.kind !== 'cauldron' &&
+          !(l.kind === 'ingredient' && l.ingredient && !usedIngredients.has(l.ingredient)),
+      )
       .map((l) => new Station(this, l.kind, l.x, l.y, l.ingredient, l.label));
     const c = this.screen.layout.find((l) => l.kind === 'cauldron');
     this.cauldron = new Cauldron(this, c ? c.x : 480, c ? c.y : 340);
@@ -87,6 +100,8 @@ export class GameScene extends Phaser.Scene {
     >;
     this.keyE = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     this.keyQ = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
+    this.keyEsc = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+    this.keyP = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.P);
     this.hud.levelName = this.screen.name;
     showHud();
     const banner = this.add
@@ -118,16 +133,16 @@ export class GameScene extends Phaser.Scene {
         this.timeLeft = 0;
         this.endMatch();
       }
-      this.player.update(
-        dt,
-        {
-          up: this.cursors.up.isDown || this.wasd.W.isDown,
-          down: this.cursors.down.isDown || this.wasd.S.isDown,
-          left: this.cursors.left.isDown || this.wasd.A.isDown,
-          right: this.cursors.right.isDown || this.wasd.D.isDown,
-        },
-        this.stations,
-      );
+      const touch = getTouchState();
+      const ix =
+        (this.cursors.right.isDown || this.wasd.D.isDown ? 1 : 0) -
+        (this.cursors.left.isDown || this.wasd.A.isDown ? 1 : 0) +
+        touch.x;
+      const iy =
+        (this.cursors.down.isDown || this.wasd.S.isDown ? 1 : 0) -
+        (this.cursors.up.isDown || this.wasd.W.isDown ? 1 : 0) +
+        touch.y;
+      this.player.update(dt, { x: ix, y: iy }, this.stations);
       this.cauldron.update(
         dt,
         () => this.onCauldronExplode(),
@@ -138,8 +153,24 @@ export class GameScene extends Phaser.Scene {
         () => Fx.sfx('bubble'),
       );
       this.orders.update(dt, (o) => this.onOrderExpire(o));
+      if (this.mortarSlot && this.mortarSlot.progress < this.holdNeeded) {
+        this.mortarSlot.progress += dt;
+        if (this.mortarSlot.progress >= this.holdNeeded) {
+          this.mortarSlot.progress = this.holdNeeded;
+          Fx.sfx('process');
+          const def = INGREDIENTS[this.mortarSlot.ingredient];
+          this.setHint(`${def.name} ${def.emoji} molido ✅ — E en el mortero para recogerlo`);
+        }
+      }
       this.handleInteract(dt);
-      if (Phaser.Input.Keyboard.JustDown(this.keyQ)) this.dropItem();
+      if (Phaser.Input.Keyboard.JustDown(this.keyQ) || touch.qJust) this.dropItem();
+      if (
+        Phaser.Input.Keyboard.JustDown(this.keyEsc) ||
+        Phaser.Input.Keyboard.JustDown(this.keyP)
+      ) {
+        window.dispatchEvent(new CustomEvent('ak:togglepause'));
+      }
+      clearTouchJust();
     }
     updateHud(this.hud);
     this.refreshHud();
@@ -147,19 +178,13 @@ export class GameScene extends Phaser.Scene {
 
   private handleInteract(dt: number): void {
     const near = this.player.nearest(this.stations, this.interactDistance);
-    if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+    const touch = getTouchState();
+    if (Phaser.Input.Keyboard.JustDown(this.keyE) || touch.eJust) {
       this.interact(near);
     }
-    if (near && this.keyE.isDown) {
+    const eDown = this.keyE.isDown || touch.eDown;
+    if (near && eDown) {
       if (
-        (near.kind === 'mortar' || near.kind === 'cuttingBoard') &&
-        this.holdStation === near
-      ) {
-        this.holdProgress += dt;
-        if (this.holdProgress >= this.holdNeeded) {
-          this.completeProcess();
-        }
-      } else if (
         near.kind === 'cauldron' &&
         this.cauldron.state === 'exploded' &&
         this.player.item?.kind === 'wand'
@@ -243,7 +268,7 @@ export class GameScene extends Phaser.Scene {
             this.setHint(
               def.prep === 'none'
                 ? 'Eso va directo al caldero'
-                : `Primero prepáralo en ${def.prep === 'mortar' ? 'el almirez 🥣' : 'la tabla 🔪'}`,
+                : 'Primero muélelo en el mortero 🥣',
             );
           } else {
             this.player.item = null;
@@ -272,26 +297,32 @@ export class GameScene extends Phaser.Scene {
         }
         break;
       }
-      case 'mortar':
-      case 'cuttingBoard': {
+      case 'mortar': {
+        const slot = this.mortarSlot;
         if (item?.kind === 'ingredient' && item.ingredient && !item.processed) {
           const def = INGREDIENTS[item.ingredient];
-          const right =
-            (def.prep === 'mortar' && st.kind === 'mortar') ||
-            (def.prep === 'cuttingBoard' && st.kind === 'cuttingBoard');
-          if (right) {
-            this.holdStation = st;
-            this.holdProgress = 0;
-            this.setHint(`Mantén E para ${st.kind === 'mortar' ? 'moler 🥣' : 'cortar 🔪'}...`);
+          if (def.prep !== 'mortar') {
+            this.setHint('Eso va directo al caldero, no se muele');
+          } else if (slot) {
+            this.setHint('El mortero está ocupado');
           } else {
-            this.setHint(
-              def.prep === 'none'
-                ? 'Eso va directo al caldero, no se procesa'
-                : `Eso se procesa en ${def.prep === 'mortar' ? 'el almirez 🥣' : 'la tabla 🔪'}`,
-            );
+            this.mortarSlot = { ingredient: item.ingredient, progress: 0 };
+            this.player.item = null;
+            Fx.sfx('drop');
+            this.setHint(`${def.name} ${def.emoji} en el mortero 🥣 — se muele solo, puedes ir al caldero`);
+          }
+        } else if (!item && slot) {
+          if (slot.progress >= this.holdNeeded) {
+            this.player.item = { kind: 'ingredient', ingredient: slot.ingredient, processed: true };
+            this.mortarSlot = null;
+            Fx.sfx('pickup');
+            const def = INGREDIENTS[slot.ingredient];
+            this.setHint(`${def.name} ${def.emoji} molido ✅. Al caldero 🍲`);
+          } else {
+            this.setHint('Se está moliendo en el mortero 🥣...');
           }
         } else {
-          this.setHint('Coge un ingrediente crudo primero');
+          this.setHint('Deja un ingrediente aquí (E) o recógelo molido (E)');
         }
         break;
       }
@@ -310,18 +341,6 @@ export class GameScene extends Phaser.Scene {
           ? 'la varita 🪄'
           : `${INGREDIENTS[item.ingredient!].name} ${INGREDIENTS[item.ingredient!].emoji}`;
     this.setHint(`Tiraste ${label} (Q)`);
-  }
-
-  private completeProcess(): void {
-    const item = this.player.item;
-    this.holdStation = null;
-    this.holdProgress = 0;
-    if (item && item.kind === 'ingredient') {
-      item.processed = true;
-      Fx.sfx('process');
-      const def = INGREDIENTS[item.ingredient!];
-      this.setHint(`${def.name} ${def.emoji} lista ✅. Al caldero 🍲`);
-    }
   }
 
   private onCauldronExplode(): void {
@@ -383,28 +402,26 @@ export class GameScene extends Phaser.Scene {
       this.cauldron.state === 'exploded' &&
       this.player.item?.kind === 'wand' &&
       this.player.nearest(this.stations, this.interactDistance)?.kind === 'cauldron';
-    const processing = this.holdStation !== null && this.keyE.isDown;
-    h.showProgress = cleaning || processing;
+    const grinding = this.mortarSlot !== null && this.mortarSlot.progress < this.holdNeeded;
+    h.showProgress = cleaning || grinding;
     h.progress = cleaning
       ? this.cauldron.cleanProgress
-      : processing
-        ? this.holdProgress / this.holdNeeded
+      : grinding
+        ? this.mortarSlot!.progress / this.holdNeeded
         : 0;
-    h.progressLabel = cleaning ? 'Limpiando con varita 🪄' : 'Procesando...';
+    h.progressLabel = cleaning ? 'Limpiando con varita 🪄' : 'Moliendo en el mortero 🥣...';
   }
 
   private buildFloor(): void {
-    const g = this.add.graphics().setDepth(0);
-    for (let row = 0; row < 24; row++) {
-      for (let col = 0; col < 17; col++) {
+    const rt = this.add
+      .renderTexture(0, 0, 960, 640)
+      .setOrigin(0, 0)
+      .setDepth(0);
+    for (let row = 0; row < 26; row++) {
+      for (let col = 0; col < 18; col++) {
         const x = col * 64 + (row % 2) * 32 - 32;
-        const y = 64 + row * 24;
-        g.fillStyle(row % 2 ? 0x372a4a : 0x3b2d4f);
-        g.fillTriangle(x, y + 12, x + 32, y, x + 64, y + 12);
-        g.fillTriangle(x, y + 12, x + 32, y + 24, x + 64, y + 12);
-        g.lineStyle(1, 0x241a33);
-        g.strokeTriangle(x, y + 12, x + 32, y, x + 64, y + 12);
-        g.strokeTriangle(x, y + 12, x + 32, y + 24, x + 64, y + 12);
+        const y = 56 + row * 24;
+        rt.draw('floor', x, y);
       }
     }
   }
