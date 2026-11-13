@@ -3,6 +3,7 @@ set -euo pipefail
 
 IMAGE="alchemistic-kittens:latest"
 PORT="${PORT:-8080}"
+BIND="${BIND:-127.0.0.1}"
 
 cd "$(dirname "$0")"
 
@@ -21,4 +22,9 @@ if [ "${1:-run}" = "build" ]; then
 fi
 
 echo "Sirviendo el juego en http://localhost:${PORT}  (Ctrl+C para detener)"
-docker run --rm -p "127.0.0.1:${PORT}:8080" "$IMAGE"
+if [ "$BIND" != "127.0.0.1" ]; then
+  IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+  echo "Acceso desde otros dispositivos de tu red (misma WiFi): http://${IP:-<tu-ip-local>}:${PORT}"
+  echo "AVISO: solo en redes de confianza; no abras este puerto en el router hacia Internet."
+fi
+docker run --rm -p "${BIND}:${PORT}:8080" "$IMAGE"
