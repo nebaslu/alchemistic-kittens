@@ -56,10 +56,12 @@ Los **menús y el HUD son HTML/CSS plano** (`index.html` + `src/ui/screens.ts` +
 
 ## Cómo se juega la partida
 
-- **WASD / flechas**: moverse. **E**: interactuar (mantén E para moler, cortar o limpiar). **Q**: tira lo que llevas en mano.
-- Coge ingredientes del puesto superior, prepáralos en el **almirez 🥣** (muele) o la **tabla 🔪** (corta), échalos al **caldero 🍲**, espera a que la poción esté lista, sácala (entra en **frasco de cristal 🧪**, no se lava) y entrégala en el **expendedor 🛒** antes de que se acabe el tiempo del pedido.
-- **Propina**: segundos restantes × 1.5 latas de atún 🐟 (30 s × 1.5 = 45 🐟).
-- Si mezclas mal o se quema el caldero: **explota 💥** y hay que limpiarlo con la **varita miaugica 🪄**.
+- **WASD / flechas**: moverse. **E**: interactuar (mantén E para moler o limpiar). **Q**: tira lo que llevas. **Esc/P** o botón ⏸: pausa (menú con Continuar / Sonido / Salir).
+- En el puesto solo aparecen los **ingredientes que se usan en esa partida**.
+- Coge ingredientes, muélelos en el **Mortero 🥣**, échalos al **caldero**, espera a que la poción esté lista, sácala (frasco de cristal 🧪, no se lava) y entrégala en el **expendedor** antes de que se acabe el tiempo del pedido.
+- **Propina**: segundos restantes × multiplicador (config, 1.5) en latas de atún 🐟.
+- Si mezclas mal, se quema el caldero o dejas la poción lista **10 s** en el caldero: **explota 💥**. Límpialo con la **Varita Miaugica** 🪄.
+- **Sonido**: música y efectos procedural (WebAudio) con volumen independiente de música y SFX, ajustable en el menú principal (🔊 Sonido) y en la pausa; se guarda en `localStorage`.
 
 ## Estructura
 
@@ -69,7 +71,8 @@ Los **menús y el HUD son HTML/CSS plano** (`index.html` + `src/ui/screens.ts` +
 - `src/scenes/` — solo la partida en Phaser: `BootScene` (texturas), `GameScene` (lógica).
 - `src/game/` — `session.ts` (crea/destruye Phaser por partida), `config.ts` (carga del JSON), `Player`, `Station`, `Cauldron`, `OrderSystem`, `Fx`, `progress.ts` (sesión y atunes por usuario).
 - `src/game/data/` — `ingredients.ts`, `recipes.ts`, `worlds.ts` (contenido: rascadores → pantallas → pool de pedidos y layout).
-- `public/config/game.config.json` — parámetros ajustables sin recompilar.
+- `public/config/game.config.json` — parámetros ajustables sin recompilar (duración, propina, velocidad, tiempos, volumen inicial, segundos para que explote la poción lista, umbrales de atún por pantalla).
+- `public/assets/` — sprites pixel-art isométricos propios (CC0) generados con `scripts/gen-assets.py` (`python3 scripts/gen-assets.py` para regenerarlos). Si descargas packs externos (Kenney/OGA CC0), déjalos aquí y se integran.
 - `docs/GDD.md` — diseño del juego.
 
 Los assets visuales son procedurales (Graphics de Phaser + emoji) para que la demo no dependa de archivos externos.

@@ -30,6 +30,8 @@ export class GameScene extends Phaser.Scene {
   private holdStation: Station | null = null;
   private holdProgress = 0;
   private holdNeeded = 1.0;
+  private mortarSlot: { ingredient: import('../game/types').IngredientId; progress: number } | null =
+    null;
   private interactDistance = 92;
   private cleanSeconds = 1.5;
   private over = false;
@@ -65,6 +67,7 @@ export class GameScene extends Phaser.Scene {
     this.over = false;
     this.holdStation = null;
     this.holdProgress = 0;
+    this.mortarSlot = null;
     this.holdNeeded = cfg.interaction.processSeconds;
     this.interactDistance = cfg.interaction.distance;
     this.cleanSeconds = cfg.interaction.cleanSeconds;
@@ -149,6 +152,15 @@ export class GameScene extends Phaser.Scene {
         () => Fx.sfx('bubble'),
       );
       this.orders.update(dt, (o) => this.onOrderExpire(o));
+      if (this.mortarSlot && this.mortarSlot.progress < this.holdNeeded) {
+        this.mortarSlot.progress += dt;
+        if (this.mortarSlot.progress >= this.holdNeeded) {
+          this.mortarSlot.progress = this.holdNeeded;
+          Fx.sfx('process');
+          const def = INGREDIENTS[this.mortarSlot.ingredient];
+          this.setHint(`${def.name} ${def.emoji} molido ✅ — E en el mortero para recogerlo`);
+        }
+      }
       this.handleInteract(dt);
       if (Phaser.Input.Keyboard.JustDown(this.keyQ)) this.dropItem();
       if (
@@ -168,12 +180,7 @@ export class GameScene extends Phaser.Scene {
       this.interact(near);
     }
     if (near && this.keyE.isDown) {
-      if (near.kind === 'mortar' && this.holdStation === near) {
-        this.holdProgress += dt;
-        if (this.holdProgress >= this.holdNeeded) {
-          this.completeProcess();
-        }
-      } else if (
+      if (
         near.kind === 'cauldron' &&
         this.cauldron.state === 'exploded' &&
         this.player.item?.kind === 'wand'
@@ -287,17 +294,31 @@ export class GameScene extends Phaser.Scene {
         break;
       }
       case 'mortar': {
+        const slot = this.mortarSlot;
         if (item?.kind === 'ingredient' && item.ingredient && !item.processed) {
           const def = INGREDIENTS[item.ingredient];
-          if (def.prep === 'mortar') {
-            this.holdStation = st;
-            this.holdProgress = 0;
-            this.setHint('Mantén E para moler en el mortero 🥣...');
-          } else {
+          if (def.prep !== 'mortar') {
             this.setHint('Eso va directo al caldero, no se muele');
+          } else if (slot) {
+            this.setHint('El mortero está ocupado');
+          } else {
+            this.mortarSlot = { ingredient: item.ingredient, progress: 0 };
+            this.player.item = null;
+            Fx.sfx('drop');
+            this.setHint(`${def.name} ${def.emoji} en el mortero 🥣 — se muele solo, puedes ir al caldero`);
+          }
+        } else if (!item && slot) {
+          if (slot.progress >= this.holdNeeded) {
+            this.player.item = { kind: 'ingredient', ingredient: slot.ingredient, processed: true };
+            this.mortarSlot = null;
+            Fx.sfx('pickup');
+            const def = INGREDIENTS[slot.ingredient];
+            this.setHint(`${def.name} ${def.emoji} molido ✅. Al caldero 🍲`);
+          } else {
+            this.setHint('Se está moliendo en el mortero 🥣...');
           }
         } else {
-          this.setHint('Coge un ingrediente crudo primero');
+          this.setHint('Deja un ingrediente aquí (E) o recógelo molido (E)');
         }
         break;
       }
@@ -316,18 +337,6 @@ export class GameScene extends Phaser.Scene {
           ? 'la varita 🪄'
           : `${INGREDIENTS[item.ingredient!].name} ${INGREDIENTS[item.ingredient!].emoji}`;
     this.setHint(`Tiraste ${label} (Q)`);
-  }
-
-  private completeProcess(): void {
-    const item = this.player.item;
-    this.holdStation = null;
-    this.holdProgress = 0;
-    if (item && item.kind === 'ingredient') {
-      item.processed = true;
-      Fx.sfx('process');
-      const def = INGREDIENTS[item.ingredient!];
-      this.setHint(`${def.name} ${def.emoji} lista ✅. Al caldero 🍲`);
-    }
   }
 
   private onCauldronExplode(): void {
@@ -389,14 +398,14 @@ export class GameScene extends Phaser.Scene {
       this.cauldron.state === 'exploded' &&
       this.player.item?.kind === 'wand' &&
       this.player.nearest(this.stations, this.interactDistance)?.kind === 'cauldron';
-    const processing = this.holdStation !== null && this.keyE.isDown;
-    h.showProgress = cleaning || processing;
+    const grinding = this.mortarSlot !== null && this.mortarSlot.progress < this.holdNeeded;
+    h.showProgress = cleaning || grinding;
     h.progress = cleaning
       ? this.cauldron.cleanProgress
-      : processing
-        ? this.holdProgress / this.holdNeeded
+      : grinding
+        ? this.mortarSlot!.progress / this.holdNeeded
         : 0;
-    h.progressLabel = cleaning ? 'Limpiando con varita 🪄' : 'Procesando...';
+    h.progressLabel = cleaning ? 'Limpiando con varita 🪄' : 'Moliendo en el mortero 🥣...';
   }
 
   private buildFloor(): void {
