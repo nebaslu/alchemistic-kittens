@@ -378,10 +378,37 @@
       #game {
         touch-action: none;
       }
+      .fs-btn {
+        min-height: 40px;
+        padding: 6px 12px;
+        font-size: 18px;
+      }
+      #btn-fullscreen-global {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 40;
+      }
+      #fs-hint {
+        position: absolute;
+        top: 60px;
+        right: 10px;
+        z-index: 40;
+        background: var(--panel);
+        border: 2px solid var(--accent2);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 12px;
+        max-width: 240px;
+      }
     </style>
   </head>
   <body>
     <div id="app">
+      <button id="btn-fullscreen-global" class="fs-btn secondary" title="Pantalla completa">⛶</button>
+      <div id="fs-hint" class="hidden">
+        En iPhone: botón Compartir → «Añadir a pantalla de inicio» para jugar sin la barra del navegador.
+      </div>
       <section id="screen-login" class="screen">
         <h1>🐱⚗️ Alchemistic Kittens</h1>
         <p class="subtitle">Inicia sesión para entrar a la torre</p>
@@ -450,6 +477,7 @@
           <span id="hud-held"></span>
           <span id="hud-time">3:00</span>
           <button id="hud-pause" title="Pausa (Esc/P)">⏸</button>
+          <button id="btn-fullscreen" class="fs-btn" title="Pantalla completa">⛶</button>
         </div>
         <div id="hud-orders"></div>
         <div id="hud-progress-label" class="hidden"></div>

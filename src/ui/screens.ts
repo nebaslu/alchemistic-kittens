@@ -14,6 +14,7 @@ import { getConfig, screenDuration, screenMedals } from '../game/config';
 import { startGame, stopGame, setPaused } from '../game/session';
 import { Fx } from '../game/Fx';
 import { isTouchDevice } from '../game/touch';
+import { initFullscreenButtons, isFullscreenSupported } from './fullscreen';
 import { showHud, hideHud } from './hud';
 
 const $ = (id: string): HTMLElement => document.getElementById(id) as HTMLElement;
@@ -115,6 +116,13 @@ export function initUI(): void {
 
   window.addEventListener('resize', updateRotateOverlay);
   window.addEventListener('orientationchange', updateRotateOverlay);
+
+  initFullscreenButtons(() => {
+    const hint = $('fs-hint');
+    hint.classList.remove('hidden');
+    window.setTimeout(() => hint.classList.add('hidden'), 5000);
+  });
+  if (!isFullscreenSupported()) $('fs-hint').classList.remove('hidden');
 
   const existing = localStorage.getItem(USER_KEY);
   if (existing) openMenu();
