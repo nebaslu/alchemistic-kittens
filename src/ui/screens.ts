@@ -13,6 +13,7 @@ import {
 import { getConfig, screenDuration, screenMedals } from '../game/config';
 import { startGame, stopGame, setPaused } from '../game/session';
 import { Fx } from '../game/Fx';
+import { isTouchDevice } from '../game/touch';
 import { showHud, hideHud } from './hud';
 
 const $ = (id: string): HTMLElement => document.getElementById(id) as HTMLElement;
@@ -112,6 +113,9 @@ export function initUI(): void {
     Fx.initAudio();
   }, { once: true });
 
+  window.addEventListener('resize', updateRotateOverlay);
+  window.addEventListener('orientationchange', updateRotateOverlay);
+
   const existing = localStorage.getItem(USER_KEY);
   if (existing) openMenu();
   else show('screen-login');
@@ -163,7 +167,16 @@ function startMatch(worldId: string, screenId: string): void {
   document.querySelectorAll('.screen').forEach((s) => s.classList.add('hidden'));
   $('game').classList.remove('hidden');
   showHud();
+  updateRotateOverlay();
   startGame(worldId, screenId);
+}
+
+function updateRotateOverlay(): void {
+  const el = $('rotate-overlay');
+  const inMatch = !$('game').classList.contains('hidden');
+  const portrait = window.innerHeight > window.innerWidth;
+  if (inMatch && isTouchDevice() && portrait) el.classList.remove('hidden');
+  else el.classList.add('hidden');
 }
 
 function onGameOver(d: { worldId: string; screenId: string; score: number; cans: number }): void {

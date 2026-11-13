@@ -2,7 +2,10 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Alchemistic Kittens</title>
     <style>
       :root {
@@ -307,6 +310,74 @@
       .subtitle {
         color: #cfc4e8;
       }
+      #touch-controls {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 20;
+      }
+      #joy-base {
+        position: absolute;
+        left: 36px;
+        bottom: 60px;
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.12);
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        pointer-events: auto;
+        touch-action: none;
+      }
+      #joy-stick {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 60px;
+        height: 60px;
+        margin: -30px 0 0 -30px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.45);
+      }
+      #touch-buttons {
+        position: absolute;
+        right: 30px;
+        bottom: 60px;
+        display: flex;
+        gap: 16px;
+        pointer-events: auto;
+      }
+      #touch-buttons button {
+        width: 76px;
+        height: 76px;
+        border-radius: 50%;
+        font-size: 24px;
+        padding: 0;
+        min-height: 0;
+        touch-action: none;
+        user-select: none;
+      }
+      #touch-e {
+        background: #2f9e44;
+        border-color: #7ee081;
+      }
+      #touch-q {
+        background: #3a2f52;
+      }
+      #rotate-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 70;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 22px;
+        padding: 30px;
+      }
+      #game {
+        touch-action: none;
+      }
     </style>
   </head>
   <body>
@@ -409,6 +480,16 @@
           <button id="btn-sound-close" class="secondary">✔ Cerrar</button>
         </div>
       </div>
+
+      <div id="touch-controls" class="hidden">
+        <div id="joy-base"><div id="joy-stick"></div></div>
+        <div id="touch-buttons">
+          <button id="touch-q">Q</button>
+          <button id="touch-e">E</button>
+        </div>
+      </div>
+
+      <div id="rotate-overlay" class="hidden">🔄 Gira el dispositivo para jugar en horizontal</div>
 
       <div id="game" class="hidden"></div>
     </div>

@@ -10,6 +10,7 @@ import { Fx } from '../game/Fx';
 import { getConfig, screenDuration } from '../game/config';
 import { showHud, hideHud, updateHud, type HudState } from '../ui/hud';
 import { getPendingStart } from '../game/session';
+import { getTouchState, clearTouchJust } from '../game/touch';
 
 export class GameScene extends Phaser.Scene {
   private world!: WorldDef;
@@ -132,16 +133,16 @@ export class GameScene extends Phaser.Scene {
         this.timeLeft = 0;
         this.endMatch();
       }
-      this.player.update(
-        dt,
-        {
-          up: this.cursors.up.isDown || this.wasd.W.isDown,
-          down: this.cursors.down.isDown || this.wasd.S.isDown,
-          left: this.cursors.left.isDown || this.wasd.A.isDown,
-          right: this.cursors.right.isDown || this.wasd.D.isDown,
-        },
-        this.stations,
-      );
+      const touch = getTouchState();
+      const ix =
+        (this.cursors.right.isDown || this.wasd.D.isDown ? 1 : 0) -
+        (this.cursors.left.isDown || this.wasd.A.isDown ? 1 : 0) +
+        touch.x;
+      const iy =
+        (this.cursors.down.isDown || this.wasd.S.isDown ? 1 : 0) -
+        (this.cursors.up.isDown || this.wasd.W.isDown ? 1 : 0) +
+        touch.y;
+      this.player.update(dt, { x: ix, y: iy }, this.stations);
       this.cauldron.update(
         dt,
         () => this.onCauldronExplode(),
@@ -162,13 +163,14 @@ export class GameScene extends Phaser.Scene {
         }
       }
       this.handleInteract(dt);
-      if (Phaser.Input.Keyboard.JustDown(this.keyQ)) this.dropItem();
+      if (Phaser.Input.Keyboard.JustDown(this.keyQ) || touch.qJust) this.dropItem();
       if (
         Phaser.Input.Keyboard.JustDown(this.keyEsc) ||
         Phaser.Input.Keyboard.JustDown(this.keyP)
       ) {
         window.dispatchEvent(new CustomEvent('ak:togglepause'));
       }
+      clearTouchJust();
     }
     updateHud(this.hud);
     this.refreshHud();
@@ -176,10 +178,12 @@ export class GameScene extends Phaser.Scene {
 
   private handleInteract(dt: number): void {
     const near = this.player.nearest(this.stations, this.interactDistance);
-    if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
+    const touch = getTouchState();
+    if (Phaser.Input.Keyboard.JustDown(this.keyE) || touch.eJust) {
       this.interact(near);
     }
-    if (near && this.keyE.isDown) {
+    const eDown = this.keyE.isDown || touch.eDown;
+    if (near && eDown) {
       if (
         near.kind === 'cauldron' &&
         this.cauldron.state === 'exploded' &&

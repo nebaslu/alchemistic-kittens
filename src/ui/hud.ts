@@ -19,6 +19,8 @@ export interface HudState {
   progressLabel: string;
 }
 
+import { initTouchControls, isTouchDevice } from '../game/touch';
+
 const $ = (id: string): HTMLElement => document.getElementById(id) as HTMLElement;
 
 interface OrderCardEls {
@@ -32,6 +34,10 @@ let orderCards: OrderCardEls[] = [];
 
 export function showHud(): void {
   $('hud').classList.remove('hidden');
+  if (isTouchDevice()) {
+    $('touch-controls').classList.remove('hidden');
+    initTouchControls();
+  }
   const container = $('hud-orders');
   container.innerHTML = '';
   orderCards = [];
@@ -52,6 +58,7 @@ export function showHud(): void {
 
 export function hideHud(): void {
   $('hud').classList.add('hidden');
+  $('touch-controls').classList.add('hidden');
 }
 
 export function updateHud(h: HudState): void {

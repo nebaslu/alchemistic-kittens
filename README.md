@@ -58,7 +58,7 @@ Los **menús y el HUD son HTML/CSS plano** (`index.html` + `src/ui/screens.ts` +
 
 - **WASD / flechas**: moverse. **E**: interactuar (mantén E para moler o limpiar). **Q**: tira lo que llevas. **Esc/P** o botón ⏸: pausa (menú con Continuar / Sonido / Salir).
 - En el puesto solo aparecen los **ingredientes que se usan en esa partida**.
-- Coge ingredientes, muélelos en el **Mortero 🥣**, échalos al **caldero**, espera a que la poción esté lista, sácala (frasco de cristal 🧪, no se lava) y entrégala en el **expendedor** antes de que se acabe el tiempo del pedido.
+- Coge ingredientes, **déjalos en el Mortero 🥣** (E para dejar, E para recoger ya molido): se muelen solos mientras tú sigues con el caldero. Échalos al **caldero**, espera a que la poción esté lista, sácala (frasco de cristal 🧪, no se lava) y entrégala en el **expendedor** antes de que se acabe el tiempo del pedido.
 - **Propina**: segundos restantes × multiplicador (config, 1.5) en latas de atún 🐟.
 - Si mezclas mal, se quema el caldero o dejas la poción lista **10 s** en el caldero: **explota 💥**. Límpialo con la **Varita Miaugica** 🪄.
 - **Sonido**: música y efectos procedural (WebAudio) con volumen independiente de música y SFX, ajustable en el menú principal (🔊 Sonido) y en la pausa; se guarda en `localStorage`.
