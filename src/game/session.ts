@@ -38,3 +38,10 @@ export function stopGame(): void {
     game = null;
   }
 }
+
+export function setPaused(p: boolean): void {
+  const s = game?.scene.getScene('GameScene');
+  if (!s) return;
+  if (p) s.scene.pause();
+  else s.scene.resume();
+}

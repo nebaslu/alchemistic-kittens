@@ -6,12 +6,11 @@ export type IngredientId =
   | 'sirenTear'
   | 'scratcherRope';
 
-export type PrepStation = 'cuttingBoard' | 'mortar' | 'none';
+export type PrepStation = 'mortar' | 'none';
 
 export type StationKind =
   | 'ingredient'
   | 'mortar'
-  | 'cuttingBoard'
   | 'cauldron'
   | 'counter'
   | 'wandRack';

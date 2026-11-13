@@ -165,6 +165,42 @@
       #hud-time.low {
         color: #ff6b6b;
       }
+      #hud-pause {
+        pointer-events: auto;
+        min-height: 36px;
+        font-size: 15px;
+        padding: 4px 12px;
+      }
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 60;
+      }
+      .overlay .card {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        min-width: 320px;
+      }
+      .slider-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        width: 260px;
+      }
+      .slider-row label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+      }
+      input[type='range'] {
+        width: 260px;
+      }
       #hud-orders {
         position: absolute;
         top: 60px;
@@ -299,6 +335,7 @@
         <h1>🗼🐱 Alchemistic Kittens</h1>
         <p class="subtitle" id="menu-user"></p>
         <button id="btn-play">▶ Jugar</button>
+        <button id="btn-sound" class="secondary">🔊 Sonido</button>
         <button id="btn-logout" class="secondary">⏻ Salir</button>
       </section>
 
@@ -341,11 +378,36 @@
           <span id="hud-cans"></span>
           <span id="hud-held"></span>
           <span id="hud-time">3:00</span>
+          <button id="hud-pause" title="Pausa (Esc/P)">⏸</button>
         </div>
         <div id="hud-orders"></div>
         <div id="hud-progress-label" class="hidden"></div>
         <div id="hud-progress" class="hidden"><div></div></div>
         <div id="hud-hint"></div>
+      </div>
+
+      <div id="pause-overlay" class="overlay hidden">
+        <div class="card">
+          <h2>⏸ Pausa</h2>
+          <button id="btn-resume">▶ Continuar</button>
+          <button id="btn-pause-sound" class="secondary">🔊 Sonido</button>
+          <button id="btn-quit" class="secondary">↩ Salir a partidas</button>
+        </div>
+      </div>
+
+      <div id="sound-overlay" class="overlay hidden">
+        <div class="card">
+          <h2>🔊 Sonido</h2>
+          <div class="slider-row">
+            <label><span>🎵 Música</span><span id="music-val"></span></label>
+            <input id="vol-music" type="range" min="0" max="100" />
+          </div>
+          <div class="slider-row">
+            <label><span>🔔 Efectos</span><span id="sfx-val"></span></label>
+            <input id="vol-sfx" type="range" min="0" max="100" />
+          </div>
+          <button id="btn-sound-close" class="secondary">✔ Cerrar</button>
+        </div>
       </div>
 
       <div id="game" class="hidden"></div>

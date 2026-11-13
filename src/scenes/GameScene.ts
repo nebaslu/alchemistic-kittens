@@ -25,6 +25,8 @@ export class GameScene extends Phaser.Scene {
   private wasd!: Record<string, Phaser.Input.Keyboard.Key>;
   private keyE!: Phaser.Input.Keyboard.Key;
   private keyQ!: Phaser.Input.Keyboard.Key;
+  private keyEsc!: Phaser.Input.Keyboard.Key;
+  private keyP!: Phaser.Input.Keyboard.Key;
   private holdStation: Station | null = null;
   private holdProgress = 0;
   private holdNeeded = 1.0;
@@ -69,8 +71,15 @@ export class GameScene extends Phaser.Scene {
     this.timeLeft = screenDuration(this.screen.id);
     this.hint = 'Coge un ingrediente del puesto superior (E junto a él)';
     this.buildFloor();
+    const usedIngredients = new Set(
+      this.screen.pool.flatMap((d) => RECIPES[d.recipeId].steps),
+    );
     this.stations = this.screen.layout
-      .filter((l) => l.kind !== 'cauldron')
+      .filter(
+        (l) =>
+          l.kind !== 'cauldron' &&
+          !(l.kind === 'ingredient' && l.ingredient && !usedIngredients.has(l.ingredient)),
+      )
       .map((l) => new Station(this, l.kind, l.x, l.y, l.ingredient, l.label));
     const c = this.screen.layout.find((l) => l.kind === 'cauldron');
     this.cauldron = new Cauldron(this, c ? c.x : 480, c ? c.y : 340);
@@ -87,6 +96,8 @@ export class GameScene extends Phaser.Scene {
     >;
     this.keyE = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     this.keyQ = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
+    this.keyEsc = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+    this.keyP = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.P);
     this.hud.levelName = this.screen.name;
     showHud();
     const banner = this.add
@@ -140,6 +151,12 @@ export class GameScene extends Phaser.Scene {
       this.orders.update(dt, (o) => this.onOrderExpire(o));
       this.handleInteract(dt);
       if (Phaser.Input.Keyboard.JustDown(this.keyQ)) this.dropItem();
+      if (
+        Phaser.Input.Keyboard.JustDown(this.keyEsc) ||
+        Phaser.Input.Keyboard.JustDown(this.keyP)
+      ) {
+        window.dispatchEvent(new CustomEvent('ak:togglepause'));
+      }
     }
     updateHud(this.hud);
     this.refreshHud();
@@ -151,10 +168,7 @@ export class GameScene extends Phaser.Scene {
       this.interact(near);
     }
     if (near && this.keyE.isDown) {
-      if (
-        (near.kind === 'mortar' || near.kind === 'cuttingBoard') &&
-        this.holdStation === near
-      ) {
+      if (near.kind === 'mortar' && this.holdStation === near) {
         this.holdProgress += dt;
         if (this.holdProgress >= this.holdNeeded) {
           this.completeProcess();
@@ -243,7 +257,7 @@ export class GameScene extends Phaser.Scene {
             this.setHint(
               def.prep === 'none'
                 ? 'Eso va directo al caldero'
-                : `Primero prepáralo en ${def.prep === 'mortar' ? 'el almirez 🥣' : 'la tabla 🔪'}`,
+                : 'Primero muélelo en el mortero 🥣',
             );
           } else {
             this.player.item = null;
@@ -272,23 +286,15 @@ export class GameScene extends Phaser.Scene {
         }
         break;
       }
-      case 'mortar':
-      case 'cuttingBoard': {
+      case 'mortar': {
         if (item?.kind === 'ingredient' && item.ingredient && !item.processed) {
           const def = INGREDIENTS[item.ingredient];
-          const right =
-            (def.prep === 'mortar' && st.kind === 'mortar') ||
-            (def.prep === 'cuttingBoard' && st.kind === 'cuttingBoard');
-          if (right) {
+          if (def.prep === 'mortar') {
             this.holdStation = st;
             this.holdProgress = 0;
-            this.setHint(`Mantén E para ${st.kind === 'mortar' ? 'moler 🥣' : 'cortar 🔪'}...`);
+            this.setHint('Mantén E para moler en el mortero 🥣...');
           } else {
-            this.setHint(
-              def.prep === 'none'
-                ? 'Eso va directo al caldero, no se procesa'
-                : `Eso se procesa en ${def.prep === 'mortar' ? 'el almirez 🥣' : 'la tabla 🔪'}`,
-            );
+            this.setHint('Eso va directo al caldero, no se muele');
           }
         } else {
           this.setHint('Coge un ingrediente crudo primero');
@@ -394,17 +400,15 @@ export class GameScene extends Phaser.Scene {
   }
 
   private buildFloor(): void {
-    const g = this.add.graphics().setDepth(0);
-    for (let row = 0; row < 24; row++) {
-      for (let col = 0; col < 17; col++) {
+    const rt = this.add
+      .renderTexture(0, 0, 960, 640)
+      .setOrigin(0, 0)
+      .setDepth(0);
+    for (let row = 0; row < 26; row++) {
+      for (let col = 0; col < 18; col++) {
         const x = col * 64 + (row % 2) * 32 - 32;
-        const y = 64 + row * 24;
-        g.fillStyle(row % 2 ? 0x372a4a : 0x3b2d4f);
-        g.fillTriangle(x, y + 12, x + 32, y, x + 64, y + 12);
-        g.fillTriangle(x, y + 12, x + 32, y + 24, x + 64, y + 12);
-        g.lineStyle(1, 0x241a33);
-        g.strokeTriangle(x, y + 12, x + 32, y, x + 64, y + 12);
-        g.strokeTriangle(x, y + 12, x + 32, y + 24, x + 64, y + 12);
+        const y = 56 + row * 24;
+        rt.draw('floor', x, y);
       }
     }
   }

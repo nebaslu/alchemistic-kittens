@@ -8,7 +8,7 @@ export class Station {
   readonly cy: number;
   readonly hit: Phaser.Geom.Rectangle;
   readonly ingredient?: IngredientId;
-  private readonly emojiText: Phaser.GameObjects.Text;
+  private readonly icon: Phaser.GameObjects.Image;
 
   constructor(
     scene: Phaser.Scene,
@@ -23,14 +23,11 @@ export class Station {
     this.cy = y;
     this.ingredient = ingredient;
     scene.add.image(x, y + 8, 'base').setDepth(5);
-    const emoji =
+    const iconKey =
       kind === 'ingredient' && ingredient
-        ? INGREDIENTS[ingredient].emoji
-        : Station.emojiFor(kind);
-    this.emojiText = scene.add
-      .text(x, y - 14, emoji, { fontSize: '34px' })
-      .setOrigin(0.5)
-      .setDepth(10);
+        ? `ing-${ingredient}`
+        : `station-${kind}`;
+    this.icon = scene.add.image(x, y - 10, iconKey).setDepth(10);
     scene.add
       .text(x, y + 28, label ?? Station.defaultLabel(kind, ingredient), {
         fontFamily: 'monospace',
@@ -44,40 +41,21 @@ export class Station {
     this.hit = new Phaser.Geom.Rectangle(x - 40, y - 24, 80, 56);
   }
 
-  setEmoji(emoji: string): void {
-    this.emojiText.setText(emoji);
-  }
-
-  static emojiFor(kind: StationKind): string {
-    switch (kind) {
-      case 'mortar':
-        return '🥣';
-      case 'cuttingBoard':
-        return '🔪';
-      case 'cauldron':
-        return '🍲';
-      case 'counter':
-        return '🛒';
-      case 'wandRack':
-        return '🪄';
-      default:
-        return '📦';
-    }
+  setIcon(textureKey: string): void {
+    this.icon.setTexture(textureKey);
   }
 
   static defaultLabel(kind: StationKind, ingredient?: IngredientId): string {
     if (kind === 'ingredient' && ingredient) return INGREDIENTS[ingredient].name;
     switch (kind) {
       case 'mortar':
-        return 'Almirez (muele)';
-      case 'cuttingBoard':
-        return 'Tabla (corta)';
+        return 'Mortero (muele)';
       case 'cauldron':
         return 'Caldero';
       case 'counter':
         return 'Expendedor';
       case 'wandRack':
-        return 'Varita miaugica';
+        return 'Varita Miaugica';
       default:
         return '';
     }
