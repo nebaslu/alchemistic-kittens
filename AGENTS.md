@@ -25,3 +25,18 @@
 - Build: `npm test` = `tsc --noEmit && vite build && node scripts/check-scenes.mjs`.
 - Config editable en runtime: `public/config/game.config.json`.
 - Assets externos: dejar en `assets-src/` y avisar para integrarlos.
+
+## Informe de agentes (obligatorio al final de cada entrega)
+
+Cada respuesta que entregue una tarea debe terminar con:
+
+```
+## Informe de agentes
+| Fase | Agente (skill) | Qué hizo |
+|---|---|---|
+| Orquestación | gameforge-director | Descomposición en tareas y asignación |
+| <fase> | <skill usada> | <acción concreta> |
+| QA | qa-tester | npm test OK / fallos |
+```
+
+Siempre incluir la fila de `gameforge-director` y la de `qa-tester`; las demás según las skills aplicadas de verdad.
