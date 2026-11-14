@@ -42,6 +42,7 @@ export class GameScene extends Phaser.Scene {
     score: 0,
     cans: 0,
     timeLeft: 0,
+    timeTotal: 0,
     orders: [],
     held: '',
     hint: '',
@@ -410,6 +411,7 @@ export class GameScene extends Phaser.Scene {
     h.score = this.score;
     h.cans = this.cans;
     h.timeLeft = Math.max(0, this.timeLeft);
+    h.timeTotal = screenDuration(this.screen.id);
     h.held = this.player.item ? Player.itemEmoji(this.player.item) : '';
     h.hint = this.hint;
     h.orders = this.orders.active.map((o) => {

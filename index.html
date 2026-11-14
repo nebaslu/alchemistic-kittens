@@ -45,6 +45,7 @@
           />
           <div class="err" id="login-error"></div>
           <button type="submit">▶ Entrar</button>
+          <button id="btn-guest" type="button" class="secondary" style="background:none;border:none;text-decoration:underline;min-height:0;padding:4px;">¿Solo quieres probar? → Invitado</button>
         </form>
       </section>
 
@@ -71,6 +72,7 @@
           <div id="modal">
             <h2 id="modal-title"></h2>
             <p id="modal-info" class="subtitle"></p>
+            <p id="modal-controls" class="subtitle" style="font-size:12px"></p>
             <button id="modal-start">▶ Empezar partida</button>
             <button id="modal-close" class="danger">✖ Cerrar</button>
           </div>
@@ -100,6 +102,7 @@
           <button id="hud-theme" class="fs-btn" title="Cambiar estilo de UI">🎨</button>
           <button id="btn-fullscreen" class="fs-btn" title="Pantalla completa">⛶</button>
         </div>
+        <div id="hud-timebar"><div id="hud-timebar-fill"></div></div>
         <div id="hud-orders"></div>
         <div id="hud-progress-label" class="hidden"></div>
         <div id="hud-progress" class="hidden"><div></div></div>
