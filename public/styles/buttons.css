@@ -34,7 +34,8 @@ button.danger {
 .screen button,
 .screen .card button,
 .overlay button {
-  width: 320px;
+  width: 100%;
+        max-width: 320px;
   box-sizing: border-box;
 }
 

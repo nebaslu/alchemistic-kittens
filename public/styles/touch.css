@@ -47,6 +47,6 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  font-size: 22px;
+  font-size: clamp(16px, 6vw, 22px);
   padding: 30px;
 }
