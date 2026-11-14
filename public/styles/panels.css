@@ -88,3 +88,32 @@
   justify-content: space-between;
   font-size: 14px;
 }
+
+/* Decoracion de la pantalla de partidas (assets procedurales del moodboard) */
+#partidas-decor {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+#partidas-decor img {
+  height: 44px;
+  width: auto;
+  image-rendering: pixelated;
+}
+
+/* Chips de recetas en el modal de partida */
+#modal-recipes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.recipe-chip {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--accent2);
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 12px;
+}

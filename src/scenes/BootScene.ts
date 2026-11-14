@@ -32,6 +32,12 @@ const ASSETS = [
   'ing-fairyDust',
   'ing-sirenTear',
   'ing-scratcherRope',
+  'char-hat',
+  'star',
+  'potion-ronroneo',
+  'potion-antiPelos',
+  'potion-sirena',
+  'potion-montes',
 ];
 
 export class BootScene extends Phaser.Scene {
