@@ -75,6 +75,10 @@ export function initUI(): void {
   });
   $('btn-back-menu').addEventListener('click', () => openMenu());
   $('btn-sound').addEventListener('click', () => openSoundPanel());
+  for (const id of ['btn-theme', 'hud-theme']) {
+    $(id).addEventListener('click', () => toggleTheme());
+  }
+  applyTheme();
 
   $('hud-pause').addEventListener('click', () => togglePause());
   $('btn-resume').addEventListener('click', () => togglePause());
@@ -141,6 +145,19 @@ export function initUI(): void {
   const existing = localStorage.getItem(USER_KEY);
   if (existing) openMenu();
   else show('screen-login');
+}
+
+const THEME_KEY = 'ak-theme';
+
+function applyTheme(): void {
+  const theme = localStorage.getItem(THEME_KEY) ?? 'a';
+  document.body.classList.toggle('theme-b', theme === 'b');
+}
+
+function toggleTheme(): void {
+  const next = document.body.classList.contains('theme-b') ? 'a' : 'b';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme();
 }
 
 function openMenu(): void {
