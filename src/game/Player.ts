@@ -20,10 +20,12 @@ export class Player {
     this.x = x;
     this.y = y;
     this.speed = speed;
-    this.sprite = scene.add.image(x, y, 'cat').setDepth(20);
-    this.sprite.setScale(2);
+    this.sprite = scene.add
+      .image(x, y, 'char-idle')
+      .setDepth(20)
+      .setOrigin(0.5, 0.92);
     this.heldText = scene.add
-      .text(x, y - 40, '', { fontSize: '22px' })
+      .text(x, y - 118, '', { fontSize: '22px' })
       .setOrigin(0.5)
       .setDepth(21);
   }
@@ -36,6 +38,12 @@ export class Player {
       vx /= mag;
       vy /= mag;
     }
+    if (mag > 0.05 && !this.sprite.anims.isPlaying) {
+      this.sprite.play('char-run');
+    } else if (mag <= 0.05 && this.sprite.anims.isPlaying) {
+      this.sprite.stop();
+      this.sprite.setTexture('char-idle');
+    }
     const nx = this.x + vx * this.speed * dt;
     const ny = this.y + vy * this.speed * dt;
     if (!this.collides(nx, this.y, stations)) this.x = nx;
@@ -43,7 +51,7 @@ export class Player {
     this.x = Phaser.Math.Clamp(this.x, 40, 920);
     this.y = Phaser.Math.Clamp(this.y, 120, 600);
     this.sprite.setPosition(this.x, this.y);
-    this.heldText.setPosition(this.x, this.y - 40);
+    this.heldText.setPosition(this.x, this.y - 118);
     this.refreshHeld();
   }
 
