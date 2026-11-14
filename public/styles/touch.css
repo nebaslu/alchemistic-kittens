@@ -1,0 +1,52 @@
+#touch-controls {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+
+#joy-base {
+  position: absolute;
+  left: 36px;
+  bottom: 60px;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  pointer-events: auto;
+  touch-action: none;
+}
+
+#joy-stick {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 60px;
+  height: 60px;
+  margin: -30px 0 0 -30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+#touch-e {
+  background: #2f9e44;
+  border-color: #7ee081;
+}
+
+#touch-q {
+  background: #3a2f52;
+}
+
+#rotate-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 22px;
+  padding: 30px;
+}
