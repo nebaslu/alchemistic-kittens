@@ -417,10 +417,10 @@ export class GameScene extends Phaser.Scene {
       .renderTexture(0, 0, 960, 640)
       .setOrigin(0, 0)
       .setDepth(0);
-    for (let row = 0; row < 26; row++) {
+    for (let row = 0; row < 40; row++) {
       for (let col = 0; col < 18; col++) {
         const x = col * 64 + (row % 2) * 32 - 32;
-        const y = 56 + row * 24;
+        const y = 48 + row * 16;
         rt.draw((row + col) % 2 === 0 ? 'floor' : 'floor-b', x, y);
       }
     }
