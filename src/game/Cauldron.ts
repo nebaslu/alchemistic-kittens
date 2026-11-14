@@ -1,3 +1,4 @@
+/** Caldero: máquina de estados empty → cooking → ready → exploded. La poción lista explota tras `cauldron.readyExplodeSeconds` (config). */
 import Phaser from 'phaser';
 import type { CauldronState, IngredientId } from './types';
 import { INGREDIENTS } from './data/ingredients';

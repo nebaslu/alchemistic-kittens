@@ -1,3 +1,4 @@
+/** HUD en HTML: barra superior, tarjetas de pedidos, barra de progreso e hint; se actualiza desde GameScene vía `updateHud`. */
 export interface HudOrder {
   emoji: string;
   name: string;

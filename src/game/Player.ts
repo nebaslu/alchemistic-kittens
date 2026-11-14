@@ -1,3 +1,4 @@
+/** Gatito jugador: sprite animado (char-run), movimiento con colisiones contra estaciones y objeto en mano. */
 import Phaser from 'phaser';
 import type { Item } from './types';
 import type { Station } from './Station';

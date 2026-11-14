@@ -1,3 +1,4 @@
+/** Menús en HTML puro (login, principal, partidas+modal, resultados) y navegación; Phaser solo se crea al empezar partida (`session.startGame`). */
 import { WORLDS, type ScreenDef, type WorldDef } from '../game/data/worlds';
 import {
   USER_KEY,
@@ -29,10 +30,23 @@ function show(id: string): void {
   $(id).classList.remove('hidden');
 }
 
-function medalBadge(medal: Medal | null): string {
-  if (!medal) return '<span style="color:#777">🐟 sin atún</span>';
-  const color = `#${MEDAL_COLOR[medal].toString(16).padStart(6, '0')}`;
-  return `<span>🐟</span> <b style="color:${color}">atún de ${MEDAL_LABEL[medal]}</b>`;
+/** Devuelve un nodo DOM con el badge del atún conseguido (sin innerHTML). */
+function medalBadge(medal: Medal | null): HTMLElement {
+  const wrap = document.createElement('span');
+  const fish = document.createElement('span');
+  fish.textContent = '🐟';
+  wrap.appendChild(fish);
+  const label = document.createElement('b');
+  if (!medal) {
+    label.textContent = 'sin atún';
+    label.style.color = '#777777';
+  } else {
+    label.textContent = `atún de ${MEDAL_LABEL[medal]}`;
+    label.style.color = `#${MEDAL_COLOR[medal].toString(16).padStart(6, '0')}`;
+  }
+  wrap.appendChild(document.createTextNode(' '));
+  wrap.appendChild(label);
+  return wrap;
 }
 
 export function initUI(): void {
@@ -208,7 +222,12 @@ function renderPartidas(): void {
   for (const world of WORLDS) {
     const card = document.createElement('div');
     card.className = 'world-card' + (world.id === selectedWorld.id ? ' selected' : '');
-    card.innerHTML = `<div style="font-size:44px">${world.emoji}</div><div>${world.name}</div>`;
+    const emoji = document.createElement('div');
+    emoji.style.fontSize = '44px';
+    emoji.textContent = world.emoji;
+    const name = document.createElement('div');
+    name.textContent = world.name;
+    card.append(emoji, name);
     card.addEventListener('click', () => {
       selectedWorld = world;
       renderPartidas();
@@ -224,11 +243,17 @@ function renderPartidas(): void {
     const p = prog[screen.id];
     const card = document.createElement('div');
     card.className = 'screen-card' + (unlocked ? '' : ' locked');
-    card.innerHTML = `
-      <div style="font-size:15px">Pantalla ${i + 1}</div>
-      <div class="big">${unlocked ? '🐾' : '🔒'}</div>
-      <div>${medalBadge(p?.medal ?? null)}</div>
-      <div style="font-size:11px;color:#cfc4e8">${p ? `🐟 mejor: ${p.bestCans}` : 'sin jugar'}</div>`;
+    const title = document.createElement('div');
+    title.style.fontSize = '15px';
+    title.textContent = `Pantalla ${i + 1}`;
+    const big = document.createElement('div');
+    big.className = 'big';
+    big.textContent = unlocked ? '🐾' : '🔒';
+    const best = document.createElement('div');
+    best.style.fontSize = '11px';
+    best.style.color = '#cfc4e8';
+    best.textContent = p ? `🐟 mejor: ${p.bestCans}` : 'sin jugar';
+    card.append(title, big, medalBadge(p?.medal ?? null), best);
     if (unlocked) {
       card.addEventListener('click', () => openModal(screen));
     }
@@ -259,9 +284,16 @@ function renderResults(
   $('results-screen').textContent = screen ? screen.name : '';
   $('results-score').textContent = `Puntos: ${d.score}   🐟 Latas de atún ganadas: ${d.cans}`;
   const medalEl = $('results-medal');
+  medalEl.textContent = '';
   if (medal) {
     const color = `#${MEDAL_COLOR[medal].toString(16).padStart(6, '0')}`;
-    medalEl.innerHTML = `<span>🐟</span> <b style="color:${color}">Atún de ${MEDAL_LABEL[medal]} conseguido</b>`;
+    const fish = document.createElement('span');
+    fish.textContent = '🐟';
+    const b = document.createElement('b');
+    b.style.color = color;
+    b.textContent = `Atún de ${MEDAL_LABEL[medal]} conseguido`;
+    medalEl.append(fish, document.createTextNode(' '), b);
+    medalEl.style.color = '';
   } else {
     medalEl.textContent = 'Sin atún esta vez';
     medalEl.style.color = '#ff6b6b';
@@ -281,10 +313,20 @@ function renderResults(
   for (let i = 0; i < 3; i++) {
     const shown = i < 2 ? Math.min(d.cans, thresholds[i]) : d.cans;
     const wrap = document.createElement('div');
-    wrap.innerHTML = `
-      <div class="can" style="background:${colors[i]}"><div class="fill" style="height:${fills[i] * 100}%"></div></div>
-      <div class="can-label">${labels[i]}</div>
-      <div class="can-count">${shown}/${thresholds[i]} 🐟</div>`;
+    const can = document.createElement('div');
+    can.className = 'can';
+    can.style.background = colors[i];
+    const fill = document.createElement('div');
+    fill.className = 'fill';
+    fill.style.height = `${fills[i] * 100}%`;
+    can.appendChild(fill);
+    const label = document.createElement('div');
+    label.className = 'can-label';
+    label.textContent = labels[i];
+    const count = document.createElement('div');
+    count.className = 'can-count';
+    count.textContent = `${shown}/${thresholds[i]} 🐟`;
+    wrap.append(can, label, count);
     row.appendChild(wrap);
   }
 }

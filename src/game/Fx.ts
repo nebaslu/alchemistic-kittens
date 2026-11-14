@@ -15,6 +15,11 @@ export type SfxName =
 const MUSIC_KEY = 'ak-vol-music';
 const SFX_KEY = 'ak-vol-sfx';
 
+/**
+ * Efectos de sonido (WebAudio procedural) y partículas/textos flotantes.
+ * Los volúmenes de música/SFX se guardan en localStorage y se aplican sobre
+ * gain nodes maestros (`sfxGain`, `musicGain`).
+ */
 export class Fx {
   private static audio: AudioContext | null = null;
   private static sfxGain: GainNode | null = null;
@@ -112,6 +117,17 @@ export class Fx {
     if (Fx.musicTimer !== null) {
       window.clearInterval(Fx.musicTimer);
       Fx.musicTimer = null;
+    }
+  }
+
+  /** Libera recursos de audio (llamar al destruir la partida). */
+  static dispose(): void {
+    Fx.stopMusic();
+    if (Fx.audio) {
+      void Fx.audio.close();
+      Fx.audio = null;
+      Fx.sfxGain = null;
+      Fx.musicGain = null;
     }
   }
 

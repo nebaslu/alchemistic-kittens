@@ -1,5 +1,6 @@
 let onChange: (() => void) | null = null;
 
+/** Botón de pantalla completa (Fullscreen API + prefijo webkit) con aviso fallback en navegadores sin soporte. */
 export function isFullscreenSupported(): boolean {
   const el = document.documentElement as HTMLElement & {
     webkitRequestFullscreen?: () => void;

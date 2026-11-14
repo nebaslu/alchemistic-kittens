@@ -1,3 +1,4 @@
+/** Controles táctiles (joystick virtual + botones E/Q) para móvil; estado leído por GameScene junto al teclado. */
 export interface TouchState {
   x: number;
   y: number;

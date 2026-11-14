@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { BootScene } from '../scenes/BootScene';
 import { GameScene } from '../scenes/GameScene';
+import { Fx } from './Fx';
 
 let game: Phaser.Game | null = null;
 let pending: { worldId: string; screenId: string } | null = null;
@@ -37,6 +38,7 @@ export function stopGame(): void {
     game.destroy(true);
     game = null;
   }
+  Fx.dispose();
 }
 
 export function setPaused(p: boolean): void {
