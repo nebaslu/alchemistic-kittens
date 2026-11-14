@@ -1,0 +1,96 @@
+/* Tema B: propuesta UX/UI "cozy violet & parchment" (docs uploaded).
+   Se activa con body.theme-b desde el botón 🎨 (persiste en localStorage). */
+
+body.theme-b {
+  --bg: #231724;
+  --panel: #352942;
+  --accent: #6d4aff;
+  --accent2: #9e63bd;
+  --gold: #ffb74d;
+  --text: #f4ebd9;
+  font-family: 'Nunito', 'Segoe UI', monospace, sans-serif;
+}
+
+body.theme-b h1,
+body.theme-b h2 {
+  color: var(--gold);
+  font-family: 'Nunito', monospace, sans-serif;
+  font-weight: 900;
+}
+
+body.theme-b button {
+  border-image: none;
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  text-shadow: none;
+}
+body.theme-b button:hover {
+  background: #7d5eff;
+  filter: none;
+}
+body.theme-b button:active {
+  filter: brightness(0.9);
+}
+body.theme-b button.secondary {
+  background: #573b58;
+  color: #f4ebd9;
+  border-image: none;
+  text-shadow: none;
+}
+body.theme-b button.danger {
+  background: #ff5252;
+  border-image: none;
+}
+
+body.theme-b .card,
+body.theme-b #modal,
+body.theme-b .world-card,
+body.theme-b .screen-card {
+  border-image: none;
+  background: #fff8ec;
+  color: #1c1430;
+  border: none;
+  border-radius: 14px;
+}
+body.theme-b .world-card.selected {
+  outline: 3px solid var(--gold);
+  filter: none;
+}
+
+body.theme-b input {
+  background: #ffffff;
+  color: #1c1430;
+  border: 2px solid #9e63bd;
+}
+
+body.theme-b #hud-top {
+  background: #352942;
+  text-shadow: none;
+}
+body.theme-b .order-card {
+  background: rgba(35, 23, 36, 0.85);
+  border-color: #9e63bd;
+}
+body.theme-b .order-card .bar {
+  background: #231724;
+}
+body.theme-b .err {
+  color: #ff5252;
+}
+body.theme-b .subtitle {
+  color: #dccab0;
+}
+body.theme-b #hud-hint {
+  text-shadow: 1px 1px 0 #000;
+}
+body.theme-b .can-label,
+body.theme-b .can-count {
+  color: #f4ebd9;
+}
+body.theme-b #fs-hint {
+  background: #fff8ec;
+  color: #1c1430;
+  border-color: #9e63bd;
+}

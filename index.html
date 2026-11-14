@@ -15,6 +15,12 @@
     <link rel="stylesheet" href="styles/hud.css" />
     <link rel="stylesheet" href="styles/touch.css" />
     <link rel="stylesheet" href="styles/results.css" />
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles/theme-b.css" />
   </head>
   <body>
     <div id="app">
@@ -47,6 +53,7 @@
         <p class="subtitle" id="menu-user"></p>
         <button id="btn-play">▶ Jugar</button>
         <button id="btn-sound" class="secondary">🔊 Sonido</button>
+        <button id="btn-theme" class="secondary" title="Cambiar estilo de UI">🎨 UI</button>
         <button id="btn-logout" class="secondary">⏻ Salir</button>
       </section>
 
@@ -90,6 +97,7 @@
           <span id="hud-held"></span>
           <span id="hud-time">3:00</span>
           <button id="hud-pause" title="Pausa (Esc/P)">⏸</button>
+          <button id="hud-theme" class="fs-btn" title="Cambiar estilo de UI">🎨</button>
           <button id="btn-fullscreen" class="fs-btn" title="Pantalla completa">⛶</button>
         </div>
         <div id="hud-orders"></div>

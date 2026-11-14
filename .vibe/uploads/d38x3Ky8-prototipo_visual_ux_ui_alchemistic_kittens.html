@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alchemistic Kittens — Prototipo UX/UI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-dark: #18101c;
+      --wood-dark: #231724;
+      --wood-base: #3d293e;
+      --wood-light: #573b58;
+      --parchment: #f4ebd9;
+      --parchment-dark: #dccab0;
+      --arcane: #7b4b94;
+      --arcane-light: #9e63bd;
+      --gold: #ffd700;
+      --silver: #d0d7de;
+      --bronze: #cd7f32;
+    }
+
+    body {
+      background-color: #120c14;
+      color: #f4ebd9;
+      font-family: 'Nunito', sans-serif;
+      user-select: none;
+    }
+
+    .font-pixel {
+      font-family: 'Press Start 2P', monospace;
+      line-height: 1.4;
+    }
+
+    /* Bordes estilo Pixel Art */
+    .pixel-box {
+      background-color: var(--wood-base);
+      border: 4px solid var(--wood-dark);
+      box-shadow: 
+        inset 4px 4px 0px var(--wood-light),
+        inset -4px -4px 0px #2b1c2c,
+        0 8px 0 rgba(0,0,0,0.4);
+    }
+
+    .pixel-parchment {
+      background-color: var(--parchment);
+      color: var(--wood-dark);
+      border: 4px solid var(--wood-dark);
+      box-shadow: 
+        inset 4px 4px 0px #fff9ed,
+        inset -4px -4px 0px var(--parchment-dark),
+        0 6px 0 rgba(0,0,0,0.35);
+    }
+
+    .pixel-btn {
+      background-color: var(--arcane);
+      color: #fff;
+      border: 4px solid var(--wood-dark);
+      box-shadow: 
+        inset 3px 3px 0px var(--arcane-light),
+        inset -3px -3px 0px #523063,
+        0 4px 0 var(--wood-dark);
+      transition: transform 0.08s;
+      cursor: pointer;
+    }
+    .pixel-btn:hover {
+      background-color: var(--arcane-light);
+    }
+    .pixel-btn:active {
+      transform: translateY(3px);
+      box-shadow: inset 3px 3px 0px #523063, 0 1px 0 var(--wood-dark);
+    }
+
+    .pixel-btn-green {
+      background-color: #388e3c;
+      box-shadow: inset 3px 3px 0px #66bb6a, inset -3px -3px 0px #1b5e20, 0 4px 0 var(--wood-dark);
+    }
+    .pixel-btn-green:hover { background-color: #43a047; }
+
+    .pixel-btn-secondary {
+      background-color: #5c435d;
+      box-shadow: inset 3px 3px 0px #7d5c7e, inset -3px -3px 0px #3a293b, 0 4px 0 var(--wood-dark);
+    }
+
+    /* Fondo isométrico simulado */
+    .iso-floor {
+      background-color: #2b2136;
+      background-image: 
+        linear-gradient(30deg, #352942 12%, transparent 12.5%, transparent 87%, #352942 87.5%, #352942),
+        linear-gradient(150deg, #352942 12%, transparent 12.5%, transparent 87%, #352942 87.5%, #352942),
+        linear-gradient(30deg, #352942 12%, transparent 12.5%, transparent 87%, #352942 87.5%, #352942),
+        linear-gradient(150deg, #352942 12%, transparent 12.5%, transparent 87%, #352942 87.5%, #352942);
+      background-size: 64px 112px;
+      background-position: 0 0, 0 0, 32px 56px, 32px 56px;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    .animate-float { animation: float 2.5s ease-in-out infinite; }
+
+    @keyframes pulse-fast {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+    .animate-urgent { animation: pulse-fast 0.6s infinite; }
+
+    .screen { display: none; }
+    .screen.active { display: flex; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-4">
+
+  <!-- Barra de Navegación del Prototipo UX -->
+  <header class="w-full max-w-5xl pixel-box p-3 mb-4 flex flex-wrap items-center justify-between gap-2 z-50">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl">🐱🧪</span>
+      <div>
+        <h1 class="font-pixel text-xs text-amber-300">ALCHEMISTIC KITTENS</h1>
+        <p class="text-xs text-purple-200">Prototipo Interactivo UX/UI (Haz clic para navegar)</p>
+      </div>
+    </div>
+    <nav class="flex flex-wrap gap-1.5 text-xs font-bold">
+      <button onclick="showScreen('login')" class="nav-tab px-2.5 py-1.5 bg-purple-900/70 hover:bg-purple-700 border-2 border-black rounded" data-target="login">1. Login</button>
+      <button onclick="showScreen('menu')" class="nav-tab px-2.5 py-1.5 bg-purple-900/70 hover:bg-purple-700 border-2 border-black rounded" data-target="menu">2. Menú</button>
+      <button onclick="showScreen('tower')" class="nav-tab px-2.5 py-1.5 bg-purple-900/70 hover:bg-purple-700 border-2 border-black rounded" data-target="tower">3. Rascador 🗼</button>
+      <button onclick="showScreen('game-desktop')" class="nav-tab px-2.5 py-1.5 bg-purple-900/70 hover:bg-purple-700 border-2 border-black rounded" data-target="game-desktop">4. HUD PC</button>
+      <button onclick="showScreen('game-mobile')" class="nav-tab px-2.5 py-1.5 bg-purple-900/70 hover:bg-purple-700 border-2 border-black rounded" data-target="game-mobile">5. HUD Móvil</button>
+      <button onclick="showScreen('results')" class="nav-tab px-2.5 py-1.5 bg-purple-900/70 hover:bg-purple-700 border-2 border-black rounded" data-target="results">6. Resultados</button>
+    </nav>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL DEL VIEWPORT DEL JUEGO (16:9) -->
+  <main class="w-full max-w-5xl aspect-video relative overflow-hidden border-4 border-[#231724] shadow-2xl bg-[#1d1424] rounded-sm">
+
+    <!-- ==================== 1. PANTALLA LOGIN ==================== -->
+    <section id="screen-login" class="screen active w-full h-full flex-col items-center justify-center relative bg-gradient-to-b from-[#130b1c] via-[#261736] to-[#3a224a]">
+      <!-- Estrellas decorativas -->
+      <div class="absolute inset-0 opacity-40 pointer-events-none" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 40px 40px;"></div>
+      
+      <div class="pixel-box p-6 w-80 sm:w-96 flex flex-col items-center gap-4 z-10">
+        <!-- SVG Gatito Mago Pixel Art -->
+        <svg class="w-20 h-20 animate-float" viewBox="0 0 16 16" shape-rendering="crispEdges">
+          <rect x="6" y="1" width="4" height="2" fill="#7b4b94"/>
+          <rect x="5" y="3" width="6" height="2" fill="#9e63bd"/>
+          <rect x="3" y="5" width="10" height="1" fill="#ffd700"/>
+          <rect x="4" y="6" width="2" height="2" fill="#ff9800"/>
+          <rect x="10" y="6" width="2" height="2" fill="#ff9800"/>
+          <rect x="4" y="8" width="8" height="6" fill="#ffb74d"/>
+          <rect x="5" y="10" width="2" height="2" fill="#231724"/>
+          <rect x="9" y="10" width="2" height="2" fill="#231724"/>
+          <rect x="7" y="12" width="2" height="1" fill="#f06292"/>
+        </svg>
+
+        <h2 class="font-pixel text-sm text-center text-amber-300">ACCESO AL GREMIO</h2>
+        
+        <div class="w-full flex flex-col gap-2">
+          <label class="text-xs font-bold uppercase tracking-wider text-purple-200">Nombre de Aprendiz</label>
+          <input type="text" value="MichiAlquimista" class="w-full px-3 py-2 bg-[#231724] border-2 border-[#573b58] text-amber-100 font-bold text-sm focus:outline-none focus:border-amber-400">
+        </div>
+
+        <div class="w-full flex flex-col gap-2">
+          <label class="text-xs font-bold uppercase tracking-wider text-purple-200">Contraseña Secreta</label>
+          <input type="password" value="••••••••" class="w-full px-3 py-2 bg-[#231724] border-2 border-[#573b58] text-amber-100 font-bold text-sm focus:outline-none focus:border-amber-400">
+        </div>
+
+        <button onclick="showScreen('menu')" class="pixel-btn pixel-btn-green w-full py-3 font-pixel text-xs mt-2">
+          ENTRAR A LA TORRE
+        </button>
+        <p class="text-[11px] text-purple-300 text-center">Progreso guardado localmente en este navegador</p>
+      </div>
+    </section>
+
+    <!-- ==================== 2. MENÚ PRINCIPAL ==================== -->
+    <section id="screen-menu" class="screen w-full h-full flex-col items-center justify-center relative bg-gradient-to-b from-[#1a1026] to-[#362047]">
+      <div class="text-center z-10 flex flex-col items-center gap-6">
+        <div class="animate-float">
+          <span class="px-3 py-1 bg-amber-500/20 border border-amber-400 text-amber-300 text-xs font-bold rounded-full">EDICIÓN DEMO</span>
+          <h1 class="font-pixel text-2xl sm:text-4xl text-amber-300 mt-3 drop-shadow-[0_4px_0_#231724]">ALCHEMISTIC<br>KITTENS</h1>
+        </div>
+
+        <!-- Escena central decorativa -->
+        <div class="pixel-box px-8 py-4 flex items-center gap-6 bg-[#2c1d2e]/90">
+          <span class="text-4xl">🐈‍⬛</span>
+          <span class="text-4xl animate-bounce">🍲</span>
+          <span class="text-4xl">🐈</span>
+        </div>
+
+        <div class="flex flex-col gap-3 w-64">
+          <button onclick="showScreen('tower')" class="pixel-btn pixel-btn-green py-3.5 font-pixel text-sm">
+            ▶ JUGAR
+          </button>
+          <button onclick="showScreen('login')" class="pixel-btn pixel-btn-secondary py-2.5 font-pixel text-xs">
+            ✖ SALIR
+          </button>
+        </div>
+      </div>
+      <div class="absolute bottom-3 right-4 text-xs text-purple-300">Usuario: <strong>MichiAlquimista</strong></div>
+    </section>
+
+    <!-- ==================== 3. PARTIDAS (RASCADOR 🗼) ==================== -->
+    <section id="screen-tower" class="screen w-full h-full flex-col items-center justify-between p-5 relative bg-[#1e1429]">
+      <!-- Cabecera -->
+      <div class="w-full flex justify-between items-center z-10">
+        <button onclick="showScreen('menu')" class="pixel-btn pixel-btn-secondary px-3 py-2 font-pixel text-xs">
+          ← VOLVER
+        </button>
+        <div class="pixel-box px-4 py-2">
+          <h2 class="font-pixel text-xs sm:text-sm text-amber-300">🗼 EL RASCADOR ARCANO</h2>
+        </div>
+        <div class="pixel-box px-3 py-2 text-xs font-bold text-amber-200">
+          Total: 420 🐟
+        </div>
+      </div>
+
+      <!-- Torre Vertical de 3 Pisos -->
+      <div class="w-full max-w-xl flex flex-col gap-3 my-auto z-10">
+        
+        <!-- Piso 3: Ático (Bloqueado) -->
+        <div class="pixel-box p-3.5 flex items-center justify-between opacity-75 bg-[#261a27]">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-[#18101c] border-2 border-black flex items-center justify-center text-2xl">🔒</div>
+            <div>
+              <span class="text-[10px] font-bold uppercase text-purple-300">Piso 3 · Difícil</span>
+              <h3 class="font-pixel text-xs text-gray-300">3. ÁTICO ESTELAR</h3>
+              <p class="text-xs text-amber-400/90 mt-0.5">Desbloquea con 🐟 Plata en Sala del Caldero</p>
+            </div>
+          </div>
+          <div class="flex gap-1.5 text-lg opacity-40">
+            <span>🐟</span><span>🐟</span><span>🐟</span>
+          </div>
+        </div>
+
+        <!-- Piso 2: Sala del Caldero (Desbloqueado, jugable) -->
+        <div onclick="openLevelModal('2 · Sala del Caldero', '200 / 400 / 650', 'Ronroneo ★, Anti-Pelos ★★, Sirena ★★')" class="pixel-box p-3.5 flex items-center justify-between cursor-pointer hover:border-amber-400 transition">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-purple-900 border-2 border-black flex items-center justify-center text-2xl">🍲</div>
+            <div>
+              <span class="text-[10px] font-bold uppercase text-amber-300">Piso 2 · Medio · ¡NUEVO!</span>
+              <h3 class="font-pixel text-xs text-white">2. SALA DEL CALDERO</h3>
+              <p class="text-xs text-purple-200 mt-0.5">2 pedidos a la vez · Quema en 28s</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <!-- Peces vacíos -->
+            <span class="text-xl grayscale opacity-40" title="Bronce: 200">🐟</span>
+            <span class="text-xl grayscale opacity-40" title="Plata: 400">🐟</span>
+            <span class="text-xl grayscale opacity-40" title="Oro: 650">🐟</span>
+          </div>
+        </div>
+
+        <!-- Piso 1: Sótano (Completado con Plata) -->
+        <div onclick="openLevelModal('1 · Sótano', '150 / 300 / 500', 'Poción de Ronroneo ★ (Hierba gatera 🔪)')" class="pixel-box p-3.5 flex items-center justify-between cursor-pointer hover:border-amber-400 transition border-emerald-600">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-emerald-900 border-2 border-black flex items-center justify-center text-2xl">🕯️</div>
+            <div>
+              <span class="text-[10px] font-bold uppercase text-emerald-300">Piso 1 · Completado (Récord: 420 🐟)</span>
+              <h3 class="font-pixel text-xs text-white">1. EL SÓTANO</h3>
+              <p class="text-xs text-purple-200 mt-0.5">1 pedido · Ideal para practicar</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <!-- Bronce y Plata conseguidos -->
+            <span class="text-xl drop-shadow-[0_0_4px_#cd7f32]" style="filter: sepia(1) saturate(4) hue-rotate(-15deg);" title="Bronce Conseguido">🐟</span>
+            <span class="text-xl drop-shadow-[0_0_5px_#ffffff]" style="filter: grayscale(1) brightness(1.5);" title="Plata Conseguida">🐟</span>
+            <span class="text-xl grayscale opacity-30" title="Oro: 500">🐟</span>
+          </div>
+        </div>
+
+      </div>
+      <p class="text-xs text-purple-300">Haz clic en un piso desbloqueado para ver sus recetas y empezar</p>
+
+      <!-- MODAL DE PREPARACIÓN DE NIVEL -->
+      <div id="level-modal" class="hidden absolute inset-0 bg-black/75 z-30 items-center justify-center p-4">
+        <div class="pixel-parchment p-6 max-w-md w-full flex flex-col gap-4">
+          <div class="flex justify-between items-start border-b-2 border-[#dccab0] pb-2">
+            <div>
+              <span class="text-xs font-extrabold uppercase text-purple-800">Preparar Turno (3:00 min)</span>
+              <h3 id="modal-title" class="font-pixel text-sm mt-1">2 · Sala del Caldero</h3>
+            </div>
+            <button onclick="closeLevelModal()" class="text-lg font-bold px-2 hover:text-red-600">✖</button>
+          </div>
+
+          <div class="bg-[#e8dcc5] p-3 border-2 border-[#bfa988] text-xs space-y-1.5">
+            <p class="font-extrabold">📜 Pociones en este piso:</p>
+            <p id="modal-recipes" class="text-stone-700">Ronroneo ★, Anti-Pelos ★★, Sirena ★★</p>
+          </div>
+
+          <div class="flex justify-around items-center bg-[#e8dcc5] p-2.5 border-2 border-[#bfa988] text-xs font-bold">
+            <span>🥉 200 🐟</span>
+            <span>🥈 400 🐟 (Desbloquea Ático)</span>
+            <span>🥇 650 🐟</span>
+          </div>
+
+          <div class="flex gap-3 mt-2">
+            <button onclick="closeLevelModal()" class="pixel-btn pixel-btn-secondary flex-1 py-2.5 font-pixel text-xs">
+              ✖ CERRAR
+            </button>
+            <button onclick="closeLevelModal(); showScreen('game-desktop')" class="pixel-btn pixel-btn-green flex-1 py-2.5 font-pixel text-xs">
+              ▶ EMPEZAR
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 4. HUD IN-GAME (ESCRITORIO) ==================== -->
+    <section id="screen-game-desktop" class="screen w-full h-full flex-col justify-between p-4 relative iso-floor">
+      
+      <!-- TOP HUD: Comandas (Izquierda) + Reloj y Puntos (Derecha) -->
+      <div class="w-full flex justify-between items-start z-20 pointer-events-none">
+        
+        <!-- Tickets de Pedidos -->
+        <div class="flex gap-2.5">
+          <!-- Ticket 1 (Urgente) -->
+          <div class="pixel-parchment w-40 p-2 flex flex-col gap-1.5">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-extrabold">🧴 Anti-Pelos</span>
+              <span class="text-[10px] font-bold text-red-600 animate-urgent">14s</span>
+            </div>
+            <!-- Barra tiempo -->
+            <div class="w-full h-2 bg-stone-300 border border-black">
+              <div class="h-full bg-red-500 w-[22%]"></div>
+            </div>
+            <!-- Ingredientes en orden -->
+            <div class="flex justify-around pt-1">
+              <div class="flex flex-col items-center bg-emerald-200/80 px-1.5 py-0.5 rounded border border-emerald-600">
+                <span class="text-base">🟤</span>
+                <span class="text-[9px] font-bold text-emerald-900">✓ Listo</span>
+              </div>
+              <div class="flex flex-col items-center bg-amber-100 px-1.5 py-0.5 rounded border border-amber-500">
+                <span class="text-base">😾</span>
+                <span class="text-[9px] font-bold text-orange-800">🥣 Almirez</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ticket 2 (Normal) -->
+          <div class="pixel-parchment w-40 p-2 flex flex-col gap-1.5">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-extrabold">🧪 Sirena</span>
+              <span class="text-[10px] font-bold text-emerald-700">78s</span>
+            </div>
+            <div class="w-full h-2 bg-stone-300 border border-black">
+              <div class="h-full bg-emerald-500 w-[82%]"></div>
+            </div>
+            <div class="flex justify-around pt-1">
+              <div class="flex flex-col items-center bg-sky-100 px-1.5 py-0.5 rounded border border-sky-400">
+                <span class="text-base">💧</span>
+                <span class="text-[9px] font-bold text-sky-900">⬇️ Directo</span>
+              </div>
+              <div class="flex flex-col items-center bg-amber-100 px-1.5 py-0.5 rounded border border-amber-500">
+                <span class="text-base">✨</span>
+                <span class="text-[9px] font-bold text-orange-800">🥣 Almirez</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reloj y Marcador -->
+        <div class="flex flex-col items-end gap-2">
+          <div class="pixel-box px-4 py-2 flex items-center gap-4">
+            <div class="flex items-center gap-1.5">
+              <span class="text-lg">⏳</span>
+              <span class="font-pixel text-sm text-amber-300">01:42</span>
+            </div>
+            <div class="h-5 w-0.5 bg-purple-700"></div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-lg">🐟</span>
+              <span class="font-pixel text-sm text-white">285</span>
+            </div>
+          </div>
+          <!-- Mini barra progreso hacia Plata -->
+          <div class="pixel-box px-2.5 py-1 text-[10px] font-bold text-purple-200 flex items-center gap-2">
+            <span>Meta Plata: 285/400</span>
+            <div class="w-16 h-2 bg-black border border-purple-400">
+              <div class="h-full bg-slate-300 w-[71%]"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTRO: Simulación del Canvas Phaser Isométrico -->
+      <div class="relative w-full h-full flex items-center justify-center pointer-events-none">
+        <!-- Estación Superior: Despensa -->
+        <div class="absolute top-2 flex gap-3 bg-[#3d293e] border-4 border-[#231724] px-4 py-1.5 rounded shadow-lg">
+          <span title="Hierba Gatera">🌿</span>
+          <span title="Bola de pelos">🟤</span>
+          <span title="Maullido 3AM">😾</span>
+          <span title="Polvo de hadas">✨</span>
+          <span title="Lágrima de sirena">💧</span>
+        </div>
+
+        <!-- Estación Izquierda: Tabla y Almirez -->
+        <div class="absolute left-12 flex flex-col gap-4">
+          <div class="bg-[#573b58] border-4 border-[#231724] p-2.5 rounded text-center shadow-lg">
+            <div class="text-2xl">🔪</div>
+            <span class="text-[9px] font-bold bg-black/50 px-1 rounded">TABLA</span>
+          </div>
+          <div class="bg-[#573b58] border-4 border-[#231724] p-2.5 rounded text-center shadow-lg relative">
+            <div class="text-2xl">🥣</div>
+            <span class="text-[9px] font-bold bg-black/50 px-1 rounded">ALMIREZ</span>
+          </div>
+        </div>
+
+        <!-- Centro: Gatito + Caldero Cocinando -->
+        <div class="flex items-center gap-6">
+          <!-- Gatito sosteniendo ingrediente -->
+          <div class="flex flex-col items-center animate-float">
+            <div class="bg-amber-200 text-black text-[10px] font-bold px-1.5 rounded-full border border-black mb-0.5">😾</div>
+            <div class="text-5xl drop-shadow-[0_6px_0_rgba(0,0,0,0.5)]">🐱</div>
+          </div>
+
+          <!-- Caldero con Feedback Diegético -->
+          <div class="flex flex-col items-center">
+            <!-- Barra de cocción flotante -->
+            <div class="bg-[#231724] p-1 rounded border-2 border-amber-400 mb-1 flex flex-col items-center">
+              <div class="flex gap-1 text-xs mb-0.5">
+                <span>🟤</span><span class="opacity-40">😾</span>
+              </div>
+              <div class="w-14 h-2 bg-black">
+                <div class="h-full bg-emerald-400 w-[65%]"></div>
+              </div>
+            </div>
+            <div class="text-5xl drop-shadow-[0_6px_0_rgba(0,0,0,0.5)]">🍲</div>
+          </div>
+        </div>
+
+        <!-- Estación Derecha: Varita Miaugica + Expendedor -->
+        <div class="absolute right-12 flex flex-col gap-4">
+          <div class="bg-[#3d293e] border-4 border-[#231724] p-2.5 rounded text-center shadow-lg">
+            <div class="text-2xl">🪄</div>
+            <span class="text-[9px] font-bold bg-black/50 px-1 rounded">VARITA</span>
+          </div>
+          <div class="bg-amber-700 border-4 border-[#231724] p-2.5 rounded text-center shadow-lg">
+            <div class="text-2xl">🛒</div>
+            <span class="text-[9px] font-bold bg-black/50 px-1 rounded">ENTREGAR</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM HUD: Ayuda Contextual -->
+      <div class="w-full flex justify-between items-end z-20">
+        <div class="text-[11px] bg-black/60 px-3 py-1.5 rounded border border-purple-500/40 text-purple-200">
+          Mover: <strong class="text-white">WASD / Flechas</strong>
+        </div>
+
+        <div class="pixel-box px-4 py-2 flex items-center gap-2">
+          <span class="bg-amber-400 text-black font-pixel text-[10px] px-2 py-1 rounded">E</span>
+          <span class="text-xs font-bold text-amber-100">Echar Maullido 3AM al caldero</span>
+        </div>
+
+        <button onclick="showScreen('results')" class="pixel-btn px-3 py-1.5 text-[10px] font-pixel">
+          SIMULAR FIN ⏭
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== 5. HUD IN-GAME (MÓVIL TÁCTIL) ==================== -->
+    <section id="screen-game-mobile" class="screen w-full h-full flex-col justify-between p-3 relative iso-floor">
+      <!-- Top compacto para móvil -->
+      <div class="w-full flex justify-between items-start z-20">
+        <div class="flex gap-1.5">
+          <div class="pixel-parchment px-2 py-1 flex items-center gap-2">
+            <span class="text-base">🍵</span>
+            <div>
+              <div class="w-12 h-1.5 bg-stone-300 border border-black mb-1"><div class="h-full bg-emerald-500 w-3/4"></div></div>
+              <span class="text-xs">🌿➔🔪</span>
+            </div>
+          </div>
+        </div>
+        <div class="pixel-box px-3 py-1.5 font-pixel text-xs text-amber-300">
+          02:15 · 120 🐟
+        </div>
+      </div>
+
+      <!-- Centro con aviso de caldero explotado (Ejemplo de estado) -->
+      <div class="my-auto mx-auto flex flex-col items-center">
+        <div class="bg-red-600 text-white font-pixel text-[10px] px-3 py-1.5 border-2 border-black animate-bounce mb-2">
+          💥 ¡CALDERO SUCIO! USA LA VARITA 🪄
+        </div>
+        <div class="text-5xl grayscale">🍲</div>
+      </div>
+
+      <!-- Controles Táctiles Inferiores (Ergonomía Pulgares) -->
+      <div class="w-full flex justify-between items-end px-4 pb-2 z-20">
+        <!-- Joystick Virtual Izquierdo -->
+        <div class="w-24 h-24 rounded-full bg-white/10 border-4 border-white/30 flex items-center justify-center relative">
+          <div class="w-10 h-10 rounded-full bg-purple-400/80 border-2 border-white shadow-lg translate-x-2 -translate-y-1"></div>
+          <span class="absolute -top-5 text-[10px] font-bold text-white/70">MOVER</span>
+        </div>
+
+        <!-- Botón de Acción Gigante Derecho -->
+        <div class="flex flex-col items-center">
+          <span class="text-[10px] font-bold text-amber-300 mb-1">MANTENER PARA LIMPIAR</span>
+          <button class="w-20 h-20 rounded-full pixel-btn pixel-btn-green flex flex-col items-center justify-center shadow-2xl">
+            <span class="text-2xl">🪄</span>
+            <span class="font-pixel text-[9px] mt-1">USAR</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 6. PANTALLA DE RESULTADOS ==================== -->
+    <section id="screen-results" class="screen w-full h-full flex-col items-center justify-center p-6 relative bg-gradient-to-b from-[#1e122b] to-[#361f4d]">
+      <div class="pixel-parchment max-w-lg w-full p-6 flex flex-col items-center gap-5">
+        <div class="text-center">
+          <span class="text-xs font-extrabold uppercase tracking-widest text-purple-800">¡Tiempo Agotado! · Piso 1: El Sótano</span>
+          <h2 class="font-pixel text-lg sm:text-xl mt-1 text-[#231724]">RESULTADOS DEL TURNO</h2>
+        </div>
+
+        <!-- Las 3 Latas de Atún (Bronce / Plata / Oro) -->
+        <div class="w-full grid grid-cols-3 gap-3 my-1">
+          
+          <!-- Lata Bronce (Llena 150/150) -->
+          <div class="bg-[#e8dcc5] border-4 border-[#cd7f32] p-3 flex flex-col items-center relative">
+            <span class="absolute -top-3 bg-[#cd7f32] text-white text-[9px] font-pixel px-2 py-0.5 border border-black">BRONCE</span>
+            <span class="text-4xl my-2" style="filter: sepia(1) saturate(4) hue-rotate(-15deg);">🐟</span>
+            <span class="font-pixel text-xs text-[#231724]">150/150</span>
+            <span class="text-[10px] font-extrabold text-emerald-700 mt-1">✓ COMPLETADA</span>
+          </div>
+
+          <!-- Lata Plata (Llena 300/300) -->
+          <div class="bg-[#e8dcc5] border-4 border-slate-400 p-3 flex flex-col items-center relative shadow-md">
+            <span class="absolute -top-3 bg-slate-500 text-white text-[9px] font-pixel px-2 py-0.5 border border-black">PLATA</span>
+            <span class="text-4xl my-2" style="filter: grayscale(1) brightness(1.4);">🐟</span>
+            <span class="font-pixel text-xs text-[#231724]">300/300</span>
+            <span class="text-[10px] font-extrabold text-emerald-700 mt-1">✓ COMPLETADA</span>
+          </div>
+
+          <!-- Lata Oro (Parcial 420/500) -->
+          <div class="bg-[#e8dcc5] border-4 border-[#bfa988] p-3 flex flex-col items-center relative">
+            <span class="absolute -top-3 bg-amber-500 text-black text-[9px] font-pixel px-2 py-0.5 border border-black">ORO</span>
+            <span class="text-4xl my-2 opacity-40 grayscale">🐟</span>
+            <span class="font-pixel text-xs text-[#231724]">420/500</span>
+            <!-- Barra de progreso parcial -->
+            <div class="w-full h-2 bg-stone-300 border border-black mt-1.5">
+              <div class="h-full bg-amber-400 w-[84%]"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Banner Desbloqueo -->
+        <div class="w-full bg-purple-900 text-amber-300 border-2 border-black p-2.5 text-center text-xs font-bold flex items-center justify-center gap-2">
+          <span>🎉</span>
+          <span>¡Has conseguido Atún de Plata! <strong>Piso 2: Sala del Caldero</strong> desbloqueado.</span>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="w-full flex gap-4 mt-1">
+          <button onclick="showScreen('tower')" class="pixel-btn pixel-btn-secondary flex-1 py-3 font-pixel text-xs">
+            ↩ SALIR
+          </button>
+          <button onclick="showScreen('game-desktop')" class="pixel-btn pixel-btn-green flex-1 py-3 font-pixel text-xs">
+            ↻ VOLVER A JUGAR
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-' + screenId).classList.add('active');
+      
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        if (btn.dataset.target === screenId) {
+          btn.classList.add('bg-amber-500', 'text-black');
+          btn.classList.remove('bg-purple-900/70', 'text-white');
+        } else {
+          btn.classList.remove('bg-amber-500', 'text-black');
+          btn.classList.add('bg-purple-900/70', 'text-white');
+        }
+      });
+    }
+
+    function openLevelModal(title, thresholds, recipes) {
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('modal-recipes').innerText = recipes;
+      const modal = document.getElementById('level-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeLevelModal() {
+      const modal = document.getElementById('level-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Iniciar en la pestaña activa
+    showScreen('login');
+  </script>
+</body>
+</html>
