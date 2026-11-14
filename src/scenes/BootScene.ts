@@ -12,6 +12,18 @@ const ASSETS = [
   'station-mortar',
   'station-counter',
   'station-wand',
+  'station-ingredient',
+  'char-idle',
+  'char-run0',
+  'char-run1',
+  'char-run2',
+  'char-run3',
+  'char-run4',
+  'char-run5',
+  'char-run6',
+  'char-run7',
+  'char-run8',
+  'char-run9',
   'ing-catnip',
   'ing-hairball',
   'ing-meow3am',
@@ -32,6 +44,12 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.anims.create({
+      key: 'char-run',
+      frames: Array.from({ length: 10 }, (_, i) => ({ key: `char-run${i}` })),
+      frameRate: 12,
+      repeat: -1,
+    });
     this.scene.start('GameScene', getPendingStart() ?? undefined);
   }
 }

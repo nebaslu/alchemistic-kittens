@@ -24,10 +24,14 @@ export class Station {
     this.ingredient = ingredient;
     scene.add.image(x, y + 8, 'base').setDepth(5);
     const iconKey =
-      kind === 'ingredient' && ingredient
-        ? `ing-${ingredient}`
-        : `station-${kind}`;
+      kind === 'ingredient' ? 'station-ingredient' : `station-${kind}`;
     this.icon = scene.add.image(x, y - 10, iconKey).setDepth(10);
+    if (kind === 'ingredient' && ingredient) {
+      scene.add
+        .image(x, y - 26, `ing-${ingredient}`)
+        .setDepth(11)
+        .setScale(0.75);
+    }
     scene.add
       .text(x, y + 28, label ?? Station.defaultLabel(kind, ingredient), {
         fontFamily: 'monospace',
