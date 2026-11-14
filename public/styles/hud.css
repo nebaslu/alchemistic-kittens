@@ -1,0 +1,110 @@
+#hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  font-family: monospace;
+}
+
+#hud-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  background: url('../assets/ui/panel-grey.png');
+  background-size: 100% 100%;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 10px;
+  font-size: 14px;
+  color: #fff;
+  text-shadow: 1px 1px 0 #000;
+}
+
+#hud-time {
+  margin-left: auto;
+  font-size: 22px;
+  color: #7ee081;
+}
+
+#hud-time.low {
+  color: #ff6b6b;
+}
+
+#hud-pause {
+  pointer-events: auto;
+  min-height: 36px;
+  font-size: 15px;
+  padding: 4px 12px;
+}
+
+#hud-orders {
+  position: absolute;
+  top: 60px;
+  left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.order-card {
+  width: 228px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--accent2);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.order-card .bar {
+  height: 7px;
+  background: #1c1626;
+  border-radius: 3px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.order-card .bar > div {
+  height: 100%;
+  background: #7ee081;
+}
+
+#hud-hint {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 14px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+#hud-progress {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 204px;
+  height: 14px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+#hud-progress > div {
+  height: 100%;
+  background: #9d7bff;
+  width: 0;
+}
+
+#hud-progress-label {
+  position: absolute;
+  bottom: 48px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 13px;
+  color: #ffe08a;
+}
