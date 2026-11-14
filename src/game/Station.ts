@@ -1,3 +1,4 @@
+/** Estación del tablero (puesto de ingrediente, mortero, caldero, expendedor, soporte de varita): sprite + hitbox + etiqueta. */
 import Phaser from 'phaser';
 import type { IngredientId, StationKind } from './types';
 import { INGREDIENTS } from './data/ingredients';

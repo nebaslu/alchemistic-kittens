@@ -1,3 +1,4 @@
+/** Sesión (localStorage `ak-user`) y progreso por usuario (`ak-progress-<user>`): mejor marca y atún (bronce/plata/oro) por pantalla; desbloqueo por atún de plata. */
 import type { MedalThresholds } from './types';
 import type { WorldDef } from './data/worlds';
 

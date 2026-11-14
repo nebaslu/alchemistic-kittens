@@ -1,3 +1,4 @@
+/** Carga las texturas PNG de `public/assets/` y arranca GameScene con la pantalla pendiente. */
 import Phaser from 'phaser';
 import { getPendingStart } from '../game/session';
 

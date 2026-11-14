@@ -1,3 +1,4 @@
+/** Pedidos en flujo continuo durante la partida (pool aleatorio por pantalla) y entrega con propina = segundos restantes × tipMultiplier. */
 import { RECIPES, type Recipe } from './data/recipes';
 import type { OrderDef } from './data/worlds';
 import { getConfig } from './config';

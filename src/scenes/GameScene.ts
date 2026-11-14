@@ -202,130 +202,158 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /** Dispatch de la interacción con la estación cercana según su tipo. */
   private interact(st: Station | null): void {
     if (!st) return;
-    const item = this.player.item;
     switch (st.kind) {
-      case 'ingredient': {
-        if (!item && st.ingredient) {
-          this.player.item = { kind: 'ingredient', ingredient: st.ingredient, processed: false };
-          Fx.sfx('pickup');
-          const def = INGREDIENTS[st.ingredient];
-          this.setHint(`Cogiste ${def.name} ${def.emoji}`);
-        } else if (item) {
-          this.setHint('Ya llevas algo en las manos');
-        }
+      case 'ingredient':
+        this.interactIngredient(st);
         break;
-      }
-      case 'wandRack': {
-        if (!item) {
-          this.player.item = { kind: 'wand' };
-          Fx.sfx('pickup');
-          this.setHint('Varita miaugica 🪄 en mano');
-        } else {
-          this.setHint('Ya llevas algo en las manos');
-        }
+      case 'wandRack':
+        this.interactWandRack();
         break;
-      }
-      case 'counter': {
-        if (item?.kind === 'potion' && item.potionId) {
-          const res = this.orders.tryDeliver(item.potionId);
-          if (res.ok && res.recipe) {
-            this.score += res.points;
-            this.cans += res.cans;
-            this.player.item = null;
-            Fx.sfx('deliver');
-            Fx.floatingText(
-              this,
-              st.cx,
-              st.cy - 46,
-              `+${res.points} pts · +${res.cans} 🐟 (${Math.ceil(res.timeLeft)}s × ${getConfig().match.tipMultiplier})`,
-              '#ffd75e',
-            );
-            this.setHint(`¡Entregado! ${res.recipe.name} 🧪`);
-          } else {
-            Fx.sfx('fail');
-            this.setHint('Ningún pedido espera esa poción ahora (Q para tirarla)');
-          }
-        } else {
-          this.setHint('Lleva la poción 🧪 al expendedor 🛒');
-        }
+      case 'counter':
+        this.interactCounter(st);
         break;
-      }
-      case 'cauldron': {
-        if (item?.kind === 'ingredient' && item.ingredient) {
-          const res = this.cauldron.addIngredient(
-            item.ingredient,
-            item.processed ?? false,
-            this.orders.active.map((o) => o.recipe),
-          );
-          if (res === 'ok') {
-            this.player.item = null;
-            Fx.sfx('drop');
-            this.setHint('Al caldero 🍲');
-          } else if (res === 'needsPrep') {
-            const def = INGREDIENTS[item.ingredient];
-            this.setHint(
-              def.prep === 'none'
-                ? 'Eso va directo al caldero'
-                : 'Primero muélelo en el mortero 🥣',
-            );
-          } else {
-            this.player.item = null;
-            this.cauldron.explodeNow(() => this.onCauldronExplode());
-          }
-        } else if (this.cauldron.state === 'ready' && !item) {
-          const potionId = this.cauldron.takePotion();
-          if (potionId) {
-            this.player.item = { kind: 'potion', potionId };
-            const r = RECIPES[potionId];
-            Fx.sfx('ready');
-            this.setHint(`🧪 ${r.name} en frasco de cristal (no hay que lavarlo)`);
-          }
-        } else if (this.cauldron.state === 'exploded') {
-          this.setHint(
-            item?.kind === 'wand'
-              ? 'Mantén E para limpiar con la varita 🪄'
-              : '¡Explotó! Coge la varita 🪄 del soporte y vuelve',
-          );
-        } else if (this.cauldron.state === 'cooking' && !item) {
-          this.cauldron.clear();
-          Fx.sfx('drop');
-          this.setHint('Mezcla tirada. El caldero vuelve a estar vacío 🍲');
-        } else {
-          this.setHint('El caldero está vacío: echa un ingrediente de un pedido activo');
-        }
+      case 'cauldron':
+        this.interactCauldron();
         break;
-      }
-      case 'mortar': {
-        const slot = this.mortarSlot;
-        if (item?.kind === 'ingredient' && item.ingredient && !item.processed) {
-          const def = INGREDIENTS[item.ingredient];
-          if (def.prep !== 'mortar') {
-            this.setHint('Eso va directo al caldero, no se muele');
-          } else if (slot) {
-            this.setHint('El mortero está ocupado');
-          } else {
-            this.mortarSlot = { ingredient: item.ingredient, progress: 0 };
-            this.player.item = null;
-            Fx.sfx('drop');
-            this.setHint(`${def.name} ${def.emoji} en el mortero 🥣 — se muele solo, puedes ir al caldero`);
-          }
-        } else if (!item && slot) {
-          if (slot.progress >= this.holdNeeded) {
-            this.player.item = { kind: 'ingredient', ingredient: slot.ingredient, processed: true };
-            this.mortarSlot = null;
-            Fx.sfx('pickup');
-            const def = INGREDIENTS[slot.ingredient];
-            this.setHint(`${def.name} ${def.emoji} molido ✅. Al caldero 🍲`);
-          } else {
-            this.setHint('Se está moliendo en el mortero 🥣...');
-          }
-        } else {
-          this.setHint('Deja un ingrediente aquí (E) o recógelo molido (E)');
-        }
+      case 'mortar':
+        this.interactMortar();
         break;
+    }
+  }
+
+  /** Coge un ingrediente crudo del puesto (manos libres). */
+  private interactIngredient(st: Station): void {
+    const item = this.player.item;
+    if (!item && st.ingredient) {
+      this.player.item = { kind: 'ingredient', ingredient: st.ingredient, processed: false };
+      Fx.sfx('pickup');
+      const def = INGREDIENTS[st.ingredient];
+      this.setHint(`Cogiste ${def.name} ${def.emoji}`);
+    } else if (item) {
+      this.setHint('Ya llevas algo en las manos');
+    }
+  }
+
+  /** Coge la Varita Miaugica del soporte (manos libres). */
+  private interactWandRack(): void {
+    if (!this.player.item) {
+      this.player.item = { kind: 'wand' };
+      Fx.sfx('pickup');
+      this.setHint('Varita Miaugica 🪄 en mano');
+    } else {
+      this.setHint('Ya llevas algo en las manos');
+    }
+  }
+
+  /** Entrega la poción en el expendedor; puntúa según segundos restantes del pedido. */
+  private interactCounter(st: Station): void {
+    const item = this.player.item;
+    if (item?.kind === 'potion' && item.potionId) {
+      const res = this.orders.tryDeliver(item.potionId);
+      if (res.ok && res.recipe) {
+        this.score += res.points;
+        this.cans += res.cans;
+        this.player.item = null;
+        Fx.sfx('deliver');
+        Fx.floatingText(
+          this,
+          st.cx,
+          st.cy - 46,
+          `+${res.points} pts · +${res.cans} 🐟 (${Math.ceil(res.timeLeft)}s × ${getConfig().match.tipMultiplier})`,
+          '#ffd75e',
+        );
+        this.setHint(`¡Entregado! ${res.recipe.name} 🧪`);
+      } else {
+        Fx.sfx('fail');
+        this.setHint('Ningún pedido espera esa poción ahora (Q para tirarla)');
       }
+    } else {
+      this.setHint('Lleva la poción 🧪 al expendedor 🛒');
+    }
+  }
+
+  /**
+   * Caldero: echar ingrediente (explota si no encaja en ningún pedido activo),
+   * sacar poción lista, vaciar mezcla en cocción o indicar que hay que limpiar.
+   */
+  private interactCauldron(): void {
+    const item = this.player.item;
+    if (item?.kind === 'ingredient' && item.ingredient) {
+      const res = this.cauldron.addIngredient(
+        item.ingredient,
+        item.processed ?? false,
+        this.orders.active.map((o) => o.recipe),
+      );
+      if (res === 'ok') {
+        this.player.item = null;
+        Fx.sfx('drop');
+        this.setHint('Al caldero 🍲');
+      } else if (res === 'needsPrep') {
+        const def = INGREDIENTS[item.ingredient];
+        this.setHint(
+          def.prep === 'none' ? 'Eso va directo al caldero' : 'Primero muélelo en el mortero 🥣',
+        );
+      } else {
+        this.player.item = null;
+        this.cauldron.explodeNow(() => this.onCauldronExplode());
+      }
+    } else if (this.cauldron.state === 'ready' && !item) {
+      const potionId = this.cauldron.takePotion();
+      if (potionId) {
+        this.player.item = { kind: 'potion', potionId };
+        const r = RECIPES[potionId];
+        Fx.sfx('ready');
+        this.setHint(`🧪 ${r.name} en frasco de cristal (no hay que lavarlo)`);
+      }
+    } else if (this.cauldron.state === 'exploded') {
+      this.setHint(
+        item?.kind === 'wand'
+          ? 'Mantén E para limpiar con la varita 🪄'
+          : '¡Explotó! Coge la varita 🪄 del soporte y vuelve',
+      );
+    } else if (this.cauldron.state === 'cooking' && !item) {
+      this.cauldron.clear();
+      Fx.sfx('drop');
+      this.setHint('Mezcla tirada. El caldero vuelve a estar vacío 🍲');
+    } else {
+      this.setHint('El caldero está vacío: echa un ingrediente de un pedido activo');
+    }
+  }
+
+  /**
+   * Mortero con depósito: dejar ingrediente crudo (se muele solo mientras
+   * el jugador atiende el caldero) y recogerlo ya procesado con E.
+   */
+  private interactMortar(): void {
+    const item = this.player.item;
+    const slot = this.mortarSlot;
+    if (item?.kind === 'ingredient' && item.ingredient && !item.processed) {
+      const def = INGREDIENTS[item.ingredient];
+      if (def.prep !== 'mortar') {
+        this.setHint('Eso va directo al caldero, no se muele');
+      } else if (slot) {
+        this.setHint('El mortero está ocupado');
+      } else {
+        this.mortarSlot = { ingredient: item.ingredient, progress: 0 };
+        this.player.item = null;
+        Fx.sfx('drop');
+        this.setHint(`${def.name} ${def.emoji} en el mortero 🥣 — se muele solo, puedes ir al caldero`);
+      }
+    } else if (!item && slot) {
+      if (slot.progress >= this.holdNeeded) {
+        this.player.item = { kind: 'ingredient', ingredient: slot.ingredient, processed: true };
+        this.mortarSlot = null;
+        Fx.sfx('pickup');
+        const def = INGREDIENTS[slot.ingredient];
+        this.setHint(`${def.name} ${def.emoji} molido ✅. Al caldero 🍲`);
+      } else {
+        this.setHint('Se está moliendo en el mortero 🥣...');
+      }
+    } else {
+      this.setHint('Deja un ingrediente aquí (E) o recógelo molido (E)');
     }
   }
 

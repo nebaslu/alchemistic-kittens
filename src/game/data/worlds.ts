@@ -1,3 +1,4 @@
+/** Contenido de datos: rascadores → pantallas → pool de pedidos y layout de estaciones (editable sin tocar código). Duración y umbrales de atún vienen del JSON de config. */
 import type { IngredientId, StationKind } from '../types';
 import { INGREDIENT_IDS } from './ingredients';
 

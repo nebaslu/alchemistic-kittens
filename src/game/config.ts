@@ -1,3 +1,4 @@
+/** Carga en runtime de `public/config/game.config.json` (parámetros ajustables sin recompilar) con valores por defecto si falla. */
 import type { MedalThresholds } from './types';
 
 export interface GameConfig {

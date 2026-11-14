@@ -1,3 +1,4 @@
+/** Tipos compartidos del juego (ingredientes, estaciones, items, estados del caldero). */
 export type IngredientId =
   | 'catnip'
   | 'hairball'
