@@ -9,7 +9,7 @@ export interface MoveInput {
 }
 
 export class Player {
-  readonly sprite: Phaser.GameObjects.Image;
+  readonly sprite: Phaser.GameObjects.Sprite;
   readonly heldText: Phaser.GameObjects.Text;
   item: Item | null = null;
   x: number;
@@ -21,7 +21,7 @@ export class Player {
     this.y = y;
     this.speed = speed;
     this.sprite = scene.add
-      .image(x, y, 'char-idle')
+      .sprite(x, y, 'char-idle')
       .setDepth(20)
       .setOrigin(0.5, 0.92);
     this.heldText = scene.add

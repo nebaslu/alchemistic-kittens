@@ -7,7 +7,7 @@ BIND="${BIND:-127.0.0.1}"
 
 cd "$(dirname "$0")"
 
-podman build -t "$IMAGE" .
+podman build --no-cache -t "$IMAGE" .
 
 if [ "${1:-run}" = "build" ]; then
   echo "Imagen $IMAGE lista. Para servirla: ./run.sh  (o PORT=3000 ./run.sh)"
