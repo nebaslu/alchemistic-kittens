@@ -421,7 +421,7 @@ export class GameScene extends Phaser.Scene {
       for (let col = 0; col < 18; col++) {
         const x = col * 64 + (row % 2) * 32 - 32;
         const y = 56 + row * 24;
-        rt.draw('floor', x, y);
+        rt.draw((row + col) % 2 === 0 ? 'floor' : 'floor-b', x, y);
       }
     }
   }

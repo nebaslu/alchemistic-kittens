@@ -25,8 +25,12 @@ def save(img: Image.Image, name: str, size: tuple[int, int] | None = None) -> No
     print(name, img.size)
 
 
-# Suelo: tile de piedra limpio (fila 4 de stoneTile_S), a 64x32 como el grid actual
-save(cell("Isometric/stoneTile_S.png", 3), "floor", (64, 32))
+# Suelo: hoja floor.png nueva (celda 4 = losa limpia con vetas) como tile base,
+# y stoneUneven como variante alterna (checkerboard) — ambos 64x32 como el grid
+save(cell("Isometric/floor_S.png", 3) if False else Image.open(ROOT / "public" / "assets" / "floor.png"), "floor-new-hoja")
+hoja = Image.open(ROOT / "public" / "assets" / "floor-new-hoja.png").convert("RGBA")
+save(hoja.crop((0, 3 * 128, 256, 4 * 128)), "floor", (64, 32))
+save(cell("Isometric/stoneUneven_S.png", 3), "floor-b", (64, 32))
 
 # Estaciones (fila 4), escaladas a la mitad
 save(cell("Angle/tableShort_S.png", 3), "station-mortar", (128, 64))
