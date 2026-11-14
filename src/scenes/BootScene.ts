@@ -3,6 +3,7 @@ import { getPendingStart } from '../game/session';
 
 const ASSETS = [
   'floor',
+  'floor-b',
   'base',
   'cat',
   'bottle',
