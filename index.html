@@ -87,6 +87,13 @@
       button.danger {
         border-image-source: url('assets/ui/btn-red.png');
       }
+      /* Todos los botones de una misma pantalla comparten ancho fijo */
+      .screen button,
+      .screen .card button,
+      #modal button {
+        width: 320px;
+        box-sizing: border-box;
+      }
       input {
         font-family: monospace;
         font-size: 16px;
