@@ -35,7 +35,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 14px;
-  padding: 20px;
+  padding: 12px;
 }
 
 .hidden {
@@ -57,7 +57,7 @@ input {
   font-family: monospace;
   font-size: 16px;
   padding: 10px;
-  width: 280px;
+  width: min(280px, 82vw);
   background: #1c1626;
   color: #fff;
   border: 2px solid var(--accent);
@@ -120,4 +120,10 @@ input[type='range'] {
 /* En partida el fullscreen vive en el HUD; el global se oculta */
 body.in-game #btn-fullscreen-global {
   display: none;
+}
+
+@media (min-width: 768px) {
+  .screen {
+    padding: 20px;
+  }
 }
