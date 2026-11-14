@@ -175,6 +175,7 @@ function togglePause(): void {
 }
 
 function quitToPartidas(): void {
+  document.body.classList.remove('in-game');
   paused = false;
   setPaused(false);
   stopGame();
@@ -187,6 +188,7 @@ function quitToPartidas(): void {
 
 function startMatch(worldId: string, screenId: string): void {
   document.querySelectorAll('.screen').forEach((s) => s.classList.add('hidden'));
+  document.body.classList.add('in-game');
   $('game').classList.remove('hidden');
   showHud();
   updateRotateOverlay();
@@ -202,6 +204,7 @@ function updateRotateOverlay(): void {
 }
 
 function onGameOver(d: { worldId: string; screenId: string; score: number; cans: number }): void {
+  document.body.classList.remove('in-game');
   stopGame();
   hideHud();
   $('game').classList.add('hidden');

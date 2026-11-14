@@ -116,3 +116,8 @@ input[type='range'] {
   font-size: 12px;
   max-width: 240px;
 }
+
+/* En partida el fullscreen vive en el HUD; el global se oculta */
+body.in-game #btn-fullscreen-global {
+  display: none;
+}
