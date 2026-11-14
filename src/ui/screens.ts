@@ -1,5 +1,6 @@
 /** Menús en HTML puro (login, principal, partidas+modal, resultados) y navegación; Phaser solo se crea al empezar partida (`session.startGame`). */
 import { WORLDS, type ScreenDef, type WorldDef } from '../game/data/worlds';
+import { RECIPES } from '../game/data/recipes';
 import {
   USER_KEY,
   currentUser,
@@ -297,7 +298,21 @@ function openModal(screen: ScreenDef): void {
   const m = screenMedals(screen.id);
   $('modal-title').textContent = screen.name;
   $('modal-info').textContent = `Duración: ${mins} min · Atún: bronce ${m.bronze} 🐟 · plata ${m.silver} 🐟 · oro ${m.gold} 🐟 · propina ×${cfg.match.tipMultiplier}`;
-  $('modal-controls').textContent = 'WASD/flechas: moverse · E: interactuar · Q: tirar · Esc: pausa';
+  $('modal-controls').textContent =
+    'WASD/flechas: moverse · E: interactuar · Q: tirar · Esc: pausa · entrega la poción en la ENTREGA (derecha)';
+  const recipesEl = $('modal-recipes');
+  recipesEl.textContent = '';
+  const seen = new Set<string>();
+  for (const def of screen.pool) {
+    if (seen.has(def.recipeId)) continue;
+    seen.add(def.recipeId);
+    const r = RECIPES[def.recipeId];
+    if (!r) continue;
+    const chip = document.createElement('span');
+    chip.className = 'recipe-chip';
+    chip.textContent = `${r.emoji} ${r.name}`;
+    recipesEl.appendChild(chip);
+  }
   $('modal-overlay').classList.remove('hidden');
 }
 

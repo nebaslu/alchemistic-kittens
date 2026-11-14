@@ -12,6 +12,8 @@ export interface MoveInput {
 export class Player {
   readonly sprite: Phaser.GameObjects.Sprite;
   readonly heldText: Phaser.GameObjects.Text;
+  private readonly heldIcon: Phaser.GameObjects.Image;
+  private lastHeldText = '\u0000';
   item: Item | null = null;
   x: number;
   y: number;
@@ -22,13 +24,19 @@ export class Player {
     this.y = y;
     this.speed = speed;
     this.sprite = scene.add
-      .sprite(x, y, 'char-idle')
+      .sprite(x, y, 'char-hat')
       .setDepth(20)
       .setOrigin(0.5, 0.92);
     this.heldText = scene.add
       .text(x, y - 118, '', { fontSize: '22px' })
       .setOrigin(0.5)
       .setDepth(21);
+    this.heldIcon = scene.add
+      .image(x, y - 118, 'potion-ronroneo')
+      .setOrigin(0.5)
+      .setDepth(21)
+      .setScale(0.9)
+      .setVisible(false);
   }
 
   update(dt: number, input: MoveInput, stations: Station[]): void {
@@ -43,7 +51,7 @@ export class Player {
       this.sprite.play('char-run');
     } else if (mag <= 0.05 && this.sprite.anims.isPlaying) {
       this.sprite.stop();
-      this.sprite.setTexture('char-idle');
+      this.sprite.setTexture('char-hat');
     }
     const nx = this.x + vx * this.speed * dt;
     const ny = this.y + vy * this.speed * dt;
@@ -53,6 +61,7 @@ export class Player {
     this.y = Phaser.Math.Clamp(this.y, 120, 600);
     this.sprite.setPosition(this.x, this.y);
     this.heldText.setPosition(this.x, this.y - 118);
+    this.heldIcon.setPosition(this.x, this.y - 118);
     this.refreshHeld();
   }
 
@@ -84,8 +93,21 @@ export class Player {
     return best;
   }
 
+  /** Icono de poción sobre la cabeza al llevarla; texto solo si no cambia (evita redibujar el canvas de Phaser cada frame). */
   private refreshHeld(): void {
-    this.heldText.setText(this.item ? Player.itemEmoji(this.item) : '');
+    const it = this.item;
+    if (it?.kind === 'potion' && it.potionId) {
+      this.heldText.setText('');
+      this.lastHeldText = '\u0000';
+      this.heldIcon.setTexture(`potion-${it.potionId}`).setVisible(true);
+      return;
+    }
+    this.heldIcon.setVisible(false);
+    const t = it ? Player.itemEmoji(it) : '';
+    if (t !== this.lastHeldText) {
+      this.lastHeldText = t;
+      this.heldText.setText(t);
+    }
   }
 
   static itemEmoji(item: Item): string {

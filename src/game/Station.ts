@@ -1,4 +1,4 @@
-/** Estación del tablero (puesto de ingrediente, mortero, caldero, expendedor, soporte de varita): sprite + hitbox + etiqueta. */
+/** Estación del tablero (puesto de ingrediente, mortero, caldero, entrega, soporte de varita): sprite + hitbox + etiqueta. */
 import Phaser from 'phaser';
 import type { IngredientId, StationKind } from './types';
 import { INGREDIENTS } from './data/ingredients';
@@ -9,6 +9,8 @@ export class Station {
   readonly cy: number;
   readonly hit: Phaser.Geom.Rectangle;
   readonly ingredient?: IngredientId;
+  /** Marca visible sobre el punto de entrega (null en el resto de estaciones). */
+  readonly marker: Phaser.GameObjects.Image | null;
   private readonly icon: Phaser.GameObjects.Image;
 
   constructor(
@@ -33,6 +35,10 @@ export class Station {
         .setDepth(11)
         .setScale(0.75);
     }
+    this.marker =
+      kind === 'counter'
+        ? scene.add.image(x, y - 46, 'star').setDepth(12).setScale(1)
+        : null;
     scene.add
       .text(x, y + 28, label ?? Station.defaultLabel(kind, ingredient), {
         fontFamily: 'monospace',
@@ -58,7 +64,7 @@ export class Station {
       case 'cauldron':
         return 'Caldero';
       case 'counter':
-        return 'Expendedor';
+        return 'ENTREGA de pedidos';
       case 'wandRack':
         return 'Varita Miaugica';
       default:
