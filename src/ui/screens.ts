@@ -65,6 +65,14 @@ export function initUI(): void {
     openMenu();
   });
 
+  $('btn-guest').addEventListener('click', (e) => {
+    e.preventDefault();
+    localStorage.setItem(USER_KEY, 'invitado');
+    Fx.initAudio();
+    Fx.startMusic();
+    openMenu();
+  });
+
   $('btn-play').addEventListener('click', () => {
     renderPartidas();
     show('screen-partidas');
@@ -265,14 +273,15 @@ function renderPartidas(): void {
     card.className = 'screen-card' + (unlocked ? '' : ' locked');
     const title = document.createElement('div');
     title.style.fontSize = '15px';
-    title.textContent = `Pantalla ${i + 1}`;
+    title.textContent = `PISO ${i + 1} · ${screen.name.split('·')[1]?.trim() ?? screen.name}`;
     const big = document.createElement('div');
     big.className = 'big';
     big.textContent = unlocked ? '🐾' : '🔒';
     const best = document.createElement('div');
     best.style.fontSize = '11px';
     best.style.color = '#cfc4e8';
-    best.textContent = p ? `🐟 mejor: ${p.bestCans}` : 'sin jugar';
+    const m = screenMedals(screen.id);
+    best.textContent = p ? `🐟 ${p.bestCans}/${m.gold}` : 'sin jugar';
     card.append(title, big, medalBadge(p?.medal ?? null), best);
     if (unlocked) {
       card.addEventListener('click', () => openModal(screen));
@@ -287,7 +296,8 @@ function openModal(screen: ScreenDef): void {
   const mins = Math.round(screenDuration(screen.id) / 60);
   const m = screenMedals(screen.id);
   $('modal-title').textContent = screen.name;
-  $('modal-info').textContent = `Duración: ${mins} min · Atún: bronce ${m.bronze} 🐟 · plata ${m.silver} 🐟 · oro ${m.gold} 🐟 · velocidad ${cfg.player.speed} · propina ×${cfg.match.tipMultiplier}`;
+  $('modal-info').textContent = `Duración: ${mins} min · Atún: bronce ${m.bronze} 🐟 · plata ${m.silver} 🐟 · oro ${m.gold} 🐟 · propina ×${cfg.match.tipMultiplier}`;
+  $('modal-controls').textContent = 'WASD/flechas: moverse · E: interactuar · Q: tirar · Esc: pausa';
   $('modal-overlay').classList.remove('hidden');
 }
 

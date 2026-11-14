@@ -127,3 +127,35 @@ body.in-game #btn-fullscreen-global {
     padding: 20px;
   }
 }
+
+/* Ring de tiempo en tickets de pedido */
+.order-card .ring {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  background: conic-gradient(#e8e2f5 360deg, #1c1626 0deg);
+  -webkit-mask: radial-gradient(circle, transparent 55%, #000 56%);
+  mask: radial-gradient(circle, transparent 55%, #000 56%);
+}
+.order-card {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+/* Barra de tiempo global bajo el HUD */
+#hud-timebar {
+  position: absolute;
+  top: 52px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.4);
+}
+#hud-timebar-fill {
+  height: 100%;
+  width: 100%;
+  background: #e8e2f5;
+}

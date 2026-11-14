@@ -94,3 +94,44 @@ body.theme-b #fs-hint {
   color: #1c1430;
   border-color: #9e63bd;
 }
+
+/* --- Layout propuesta B: partidas como pisos de la torre --- */
+body.theme-b #screens-row {
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+body.theme-b .screen-card {
+  width: min(420px, 92vw);
+  max-width: none;
+  min-height: 0;
+  padding: 12px;
+  text-align: left;
+  border-left: 6px solid var(--accent2);
+}
+body.theme-b .screen-card.locked {
+  border-left-color: #8a83a3;
+}
+body.theme-b .screen-card .big {
+  display: inline-block;
+  font-size: 24px;
+  margin-right: 8px;
+}
+
+/* --- Resultados: latas como podio --- */
+body.theme-b #results-cans {
+  align-items: flex-end;
+}
+body.theme-b .can {
+  width: 64px;
+  height: 84px;
+}
+body.theme-b .can-label {
+  font-weight: 700;
+}
+
+/* Barra de tiempo global en tema B */
+body.theme-b #hud-timebar {
+  top: 52px;
+  background: rgba(0, 0, 0, 0.5);
+}
