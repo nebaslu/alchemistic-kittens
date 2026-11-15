@@ -18,6 +18,16 @@
 4. **Verificar** con `/qa-tester` (`npm test`) antes de entregar.
 5. **Informar** al usuario con el resumen del director (qué hizo cada especialista).
 
+## Protocolo de referencias visuales (imágenes)
+
+Cuando la petición del usuario incluya imágenes (dos propuestas de UI, moodboard, mocks...):
+
+1. **El modelo SÍ puede ver imágenes.** Las adjuntas en el chat llegan como recursos `file:///mnt/vibefs/uploads/...` y las del repo/workspace se leen del disco. No alegar incapacidad: abrirlas con `analyze_image` (y `ocr_document` si hay texto en la imagen).
+2. **El director pasa SIEMPRE las rutas de las imágenes al especialista** (`/game-ui-ux`, `/asset-scout`, `/game-designer`) con la instrucción explícita: "abre estas imágenes con `analyze_image` antes de proponer nada y cita lo que ves".
+3. **Prioridad de fuentes**: 1) imágenes ya en el repo (`docs/moodboard/`, `docs/ui-mocks/`, `docs/ui-propuesta-b/`, `docs/art-styles/`), 2) adjuntos del chat, 3) descripción textual.
+4. Si una imagen llega ilegible (compresión del chat, foto de pantalla con reflejos, formato raro): pedir que la re-suban en **PNG nítido, una pantalla por imagen, ancho >= 1024 px**, y que la dejen en el repo (ej. `docs/`) para no perder calidad. Nunca inventar contenido de una imagen no legible.
+5. Si la propuesta trae texto (md/html), pedirlo también como archivo de texto: el OCR de letra pequeña falla.
+
 ## Reglas de entrega
 
 - Rama `vibe/<tema>-f17f51` desde `main`; nunca push directo a `main`.
