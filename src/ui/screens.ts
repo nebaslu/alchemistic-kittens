@@ -1,5 +1,6 @@
 /** Menús en HTML puro (login, principal, partidas+modal, resultados) y navegación; Phaser solo se crea al empezar partida (`session.startGame`). */
 import { WORLDS, type ScreenDef, type WorldDef } from '../game/data/worlds';
+import { RECIPES } from '../game/data/recipes';
 import {
   USER_KEY,
   currentUser,
@@ -65,6 +66,14 @@ export function initUI(): void {
     openMenu();
   });
 
+  $('btn-guest').addEventListener('click', (e) => {
+    e.preventDefault();
+    localStorage.setItem(USER_KEY, 'invitado');
+    Fx.initAudio();
+    Fx.startMusic();
+    openMenu();
+  });
+
   $('btn-play').addEventListener('click', () => {
     renderPartidas();
     show('screen-partidas');
@@ -75,6 +84,10 @@ export function initUI(): void {
   });
   $('btn-back-menu').addEventListener('click', () => openMenu());
   $('btn-sound').addEventListener('click', () => openSoundPanel());
+  for (const id of ['btn-theme', 'hud-theme']) {
+    $(id).addEventListener('click', () => toggleTheme());
+  }
+  applyTheme();
 
   $('hud-pause').addEventListener('click', () => togglePause());
   $('btn-resume').addEventListener('click', () => togglePause());
@@ -143,6 +156,19 @@ export function initUI(): void {
   else show('screen-login');
 }
 
+const THEME_KEY = 'ak-theme';
+
+function applyTheme(): void {
+  const theme = localStorage.getItem(THEME_KEY) ?? 'a';
+  document.body.classList.toggle('theme-b', theme === 'b');
+}
+
+function toggleTheme(): void {
+  const next = document.body.classList.contains('theme-b') ? 'a' : 'b';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme();
+}
+
 function openMenu(): void {
   $('menu-user').textContent = `Sesión iniciada como: ${currentUser()}`;
   show('screen-menu');
@@ -175,6 +201,7 @@ function togglePause(): void {
 }
 
 function quitToPartidas(): void {
+  document.body.classList.remove('in-game');
   paused = false;
   setPaused(false);
   stopGame();
@@ -187,6 +214,7 @@ function quitToPartidas(): void {
 
 function startMatch(worldId: string, screenId: string): void {
   document.querySelectorAll('.screen').forEach((s) => s.classList.add('hidden'));
+  document.body.classList.add('in-game');
   $('game').classList.remove('hidden');
   showHud();
   updateRotateOverlay();
@@ -202,6 +230,7 @@ function updateRotateOverlay(): void {
 }
 
 function onGameOver(d: { worldId: string; screenId: string; score: number; cans: number }): void {
+  document.body.classList.remove('in-game');
   stopGame();
   hideHud();
   $('game').classList.add('hidden');
@@ -245,14 +274,15 @@ function renderPartidas(): void {
     card.className = 'screen-card' + (unlocked ? '' : ' locked');
     const title = document.createElement('div');
     title.style.fontSize = '15px';
-    title.textContent = `Pantalla ${i + 1}`;
+    title.textContent = `PISO ${i + 1} · ${screen.name.split('·')[1]?.trim() ?? screen.name}`;
     const big = document.createElement('div');
     big.className = 'big';
     big.textContent = unlocked ? '🐾' : '🔒';
     const best = document.createElement('div');
     best.style.fontSize = '11px';
     best.style.color = '#cfc4e8';
-    best.textContent = p ? `🐟 mejor: ${p.bestCans}` : 'sin jugar';
+    const m = screenMedals(screen.id);
+    best.textContent = p ? `🐟 ${p.bestCans}/${m.gold}` : 'sin jugar';
     card.append(title, big, medalBadge(p?.medal ?? null), best);
     if (unlocked) {
       card.addEventListener('click', () => openModal(screen));
@@ -267,7 +297,22 @@ function openModal(screen: ScreenDef): void {
   const mins = Math.round(screenDuration(screen.id) / 60);
   const m = screenMedals(screen.id);
   $('modal-title').textContent = screen.name;
-  $('modal-info').textContent = `Duración: ${mins} min · Atún: bronce ${m.bronze} 🐟 · plata ${m.silver} 🐟 · oro ${m.gold} 🐟 · velocidad ${cfg.player.speed} · propina ×${cfg.match.tipMultiplier}`;
+  $('modal-info').textContent = `Duración: ${mins} min · Atún: bronce ${m.bronze} 🐟 · plata ${m.silver} 🐟 · oro ${m.gold} 🐟 · propina ×${cfg.match.tipMultiplier}`;
+  $('modal-controls').textContent =
+    'WASD/flechas: moverse · E: interactuar · Q: tirar · Esc: pausa · entrega la poción en la ENTREGA (derecha)';
+  const recipesEl = $('modal-recipes');
+  recipesEl.textContent = '';
+  const seen = new Set<string>();
+  for (const def of screen.pool) {
+    if (seen.has(def.recipeId)) continue;
+    seen.add(def.recipeId);
+    const r = RECIPES[def.recipeId];
+    if (!r) continue;
+    const chip = document.createElement('span');
+    chip.className = 'recipe-chip';
+    chip.textContent = `${r.emoji} ${r.name}`;
+    recipesEl.appendChild(chip);
+  }
   $('modal-overlay').classList.remove('hidden');
 }
 

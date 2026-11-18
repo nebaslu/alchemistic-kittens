@@ -17,6 +17,7 @@ export class Cauldron {
   burnLeft = 0;
   cleanProgress = 0;
   bubbleClock = 0;
+  private lastStatus = '\u0000';
   private readonly statusText: Phaser.GameObjects.Text;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
@@ -167,6 +168,10 @@ export class Cauldron {
           ? `Limpiando ${Math.round(this.cleanProgress * 100)}%`
           : '¡Explotó! Usa la varita 🪄';
     }
-    this.statusText.setText(status);
+    // Solo se redibuja el texto cuando cambia (evita trabajo de canvas innecesario por frame).
+    if (status !== this.lastStatus) {
+      this.lastStatus = status;
+      this.statusText.setText(status);
+    }
   }
 }

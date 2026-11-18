@@ -178,3 +178,71 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+# --- Moodboard assets (docs/moodboard): pociones por receta, sombrero, props ---
+POTION_COLORS = {
+    "ronroneo": (255, 140, 180),
+    "antiPelos": (126, 224, 129),
+    "sirena": (79, 195, 247),
+    "montes": (255, 183, 77),
+}
+
+def gen_potion(recipe_id: str) -> None:
+    col = POTION_COLORS[recipe_id]
+    img = Image.new("RGBA", (32, 48), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.rectangle([13, 2, 19, 9], fill=(200, 200, 210))
+    d.rounded_rectangle([8, 9, 24, 44], 6, fill=(180, 200, 220, 120), outline=(220, 230, 240), width=2)
+    d.rounded_rectangle([10, 22, 22, 42], 4, fill=col)
+    d.ellipse([13, 25, 16, 28], fill=(255, 255, 255, 180))
+    save(img, f"potion-{recipe_id}")
+
+def gen_book() -> None:
+    img = Image.new("RGBA", (32, 32), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.rectangle([6, 4, 26, 28], fill=(120, 40, 40), outline=(60, 20, 20), width=2)
+    d.rectangle([9, 7, 23, 25], fill=(245, 235, 210))
+    d.line([16, 7, 16, 25], fill=(120, 40, 40), width=2)
+    d.polygon([(16, 12), (18, 15), (16, 18), (14, 15)], fill=(255, 215, 94))
+    save(img, "book")
+
+def gen_alembic() -> None:
+    img = Image.new("RGBA", (48, 48), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.ellipse([8, 20, 40, 44], fill=(180, 190, 200, 200), outline=(90, 100, 110), width=2)
+    d.polygon([(24, 20), (20, 6), (28, 6)], fill=(180, 190, 200, 200), outline=(90, 100, 110))
+    d.ellipse([22, 24, 26, 28], fill=(126, 224, 129))
+    save(img, "alembic")
+
+def gen_hat() -> None:
+    img = Image.new("RGBA", (40, 32), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.polygon([(6, 26), (34, 26), (20, 2)], fill=(70, 45, 110), outline=(30, 18, 55), width=2)
+    d.ellipse([2, 24, 38, 30], fill=(70, 45, 110), outline=(30, 18, 55), width=2)
+    d.rectangle([18, 14, 22, 18], fill=(255, 215, 94))
+    save(img, "hat")
+
+def gen_star_key_heart() -> None:
+    img = Image.new("RGBA", (24, 24), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.polygon([(12, 2), (14.5, 9), (22, 9), (16, 13.5), (18, 21), (12, 17), (6, 21), (8, 13.5), (2, 9), (9.5, 9)], fill=(255, 215, 94), outline=(200, 160, 40))
+    save(img, "star")
+    img = Image.new("RGBA", (24, 24), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.ellipse([4, 4, 14, 14], outline=(255, 215, 94), width=3)
+    d.line([(10, 12), (20, 22)], fill=(255, 215, 94), width=3)
+    d.line([(17, 19), (20, 16)], fill=(255, 215, 94), width=2)
+    save(img, "key")
+    img = Image.new("RGBA", (24, 24), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.pieslice([2, 4, 12, 14], 180, 360, fill=(255, 82, 82))
+    d.pieslice([12, 4, 22, 14], 180, 360, fill=(255, 82, 82))
+    d.polygon([(3, 10), (21, 10), (12, 22)], fill=(255, 82, 82))
+    save(img, "heart")
+
+def gen_char_hat() -> None:
+    base = Image.open(OUT / "char-idle.png").convert("RGBA")
+    hat = Image.open(OUT / "hat.png").convert("RGBA")
+    base.alpha_composite(hat, (12, 0))
+    save(base, "char-hat")

@@ -9,410 +9,18 @@
     <title>Alchemistic Kittens</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <style>
-      :root {
-        --bg: #14101f;
-        --panel: #241a33;
-        --accent: #6d4fc2;
-        --accent2: #9d7bff;
-        --gold: #ffd75e;
-        --text: #e8e2f5;
-      }
-      * {
-        box-sizing: border-box;
-      }
-      html,
-      body {
-        margin: 0;
-        height: 100%;
-        background: var(--bg);
-        color: var(--text);
-        font-family: monospace;
-      }
-      #app {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-      }
-      .screen {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 14px;
-        padding: 20px;
-      }
-      .hidden {
-        display: none !important;
-      }
-      h1 {
-        color: var(--gold);
-        text-shadow: 3px 3px 0 #000;
-        margin: 0;
-      }
-      h2 {
-        color: var(--gold);
-        margin: 0;
-      }
-      .card {
-        background: transparent;
-        border: 28px solid transparent;
-        border-image: url('assets/ui/panel.png') 40 fill stretch;
-        padding: 14px;
-      }
-      button {
-        font-family: monospace;
-        font-size: 18px;
-        padding: 10px 28px;
-        min-height: 48px;
-        color: #fff;
-        text-shadow: 1px 1px 0 #000;
-        background: transparent;
-        border: 14px solid transparent;
-        border-image: url('assets/ui/btn.png') 14 fill stretch;
-        cursor: pointer;
-      }
-      button:hover {
-        filter: brightness(1.18);
-      }
-      button:active {
-        filter: brightness(0.85);
-      }
-      button.secondary {
-        border-image-source: url('assets/ui/btn-grey.png');
-      }
-      button.danger {
-        border-image-source: url('assets/ui/btn-red.png');
-      }
-      input {
-        font-family: monospace;
-        font-size: 16px;
-        padding: 10px;
-        width: 280px;
-        background: #1c1626;
-        color: #fff;
-        border: 2px solid var(--accent);
-        border-radius: 8px;
-      }
-      .row {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-      .world-card,
-      .screen-card {
-        width: 180px;
-        min-height: 130px;
-        background: transparent;
-        border: 22px solid transparent;
-        border-image: url('assets/ui/panel.png') 32 fill stretch;
-        padding: 8px;
-        text-align: center;
-        cursor: pointer;
-      }
-      .world-card:hover,
-      .screen-card:not(.locked):hover {
-        filter: brightness(1.2);
-      }
-      .world-card.selected {
-        filter: brightness(1.25) sepia(0.4) saturate(2) hue-rotate(-15deg);
-      }
-      .screen-card.locked {
-        opacity: 0.55;
-        cursor: not-allowed;
-      }
-      .screen-card .big {
-        font-size: 36px;
-      }
-      #modal-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.6);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 50;
-      }
-      #modal {
-        background: transparent;
-        border: 32px solid transparent;
-        border-image: url('assets/ui/panel.png') 40 fill stretch;
-        padding: 10px;
-        width: 400px;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      #hud {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        z-index: 10;
-        font-family: monospace;
-      }
-      #hud-top {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 52px;
-        background: url('assets/ui/panel-grey.png');
-        background-size: 100% 100%;
-        display: flex;
-        align-items: center;
-        gap: 18px;
-        padding: 0 10px;
-        font-size: 14px;
-        color: #fff;
-        text-shadow: 1px 1px 0 #000;
-      }
-      #hud-time {
-        margin-left: auto;
-        font-size: 22px;
-        color: #7ee081;
-      }
-      #hud-time.low {
-        color: #ff6b6b;
-      }
-      #hud-pause {
-        pointer-events: auto;
-        min-height: 36px;
-        font-size: 15px;
-        padding: 4px 12px;
-      }
-      .overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.65);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 60;
-      }
-      .overlay .card {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        align-items: center;
-        min-width: 320px;
-      }
-      .slider-row {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        width: 260px;
-      }
-      .slider-row label {
-        display: flex;
-        justify-content: space-between;
-        font-size: 14px;
-      }
-      input[type='range'] {
-        width: 260px;
-      }
-      #hud-orders {
-        position: absolute;
-        top: 60px;
-        left: 8px;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-      .order-card {
-        width: 228px;
-        background: rgba(0, 0, 0, 0.45);
-        border: 1px solid var(--accent2);
-        border-radius: 8px;
-        padding: 6px 8px;
-        font-size: 12px;
-      }
-      .order-card .bar {
-        height: 7px;
-        background: #1c1626;
-        border-radius: 3px;
-        margin-top: 4px;
-        overflow: hidden;
-      }
-      .order-card .bar > div {
-        height: 100%;
-        background: #7ee081;
-      }
-      #hud-hint {
-        position: absolute;
-        bottom: 8px;
-        left: 0;
-        right: 0;
-        text-align: center;
-        font-size: 14px;
-        text-shadow: 2px 2px 0 #000;
-      }
-      #hud-progress {
-        position: absolute;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 204px;
-        height: 14px;
-        background: rgba(0, 0, 0, 0.6);
-        border-radius: 6px;
-        overflow: hidden;
-      }
-      #hud-progress > div {
-        height: 100%;
-        background: #9d7bff;
-        width: 0;
-      }
-      #hud-progress-label {
-        position: absolute;
-        bottom: 48px;
-        left: 0;
-        right: 0;
-        text-align: center;
-        font-size: 13px;
-        color: #ffe08a;
-      }
-      #game {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      canvas {
-        image-rendering: pixelated;
-      }
-      .can {
-        width: 48px;
-        height: 62px;
-        border: 2px solid #000;
-        border-radius: 6px;
-        position: relative;
-        overflow: hidden;
-        margin: 0 auto;
-      }
-      .can .fill {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255, 255, 255, 0.85);
-        height: 0;
-      }
-      .can-label {
-        text-align: center;
-        font-size: 14px;
-        margin-top: 6px;
-      }
-      .can-count {
-        text-align: center;
-        font-size: 16px;
-        margin-top: 2px;
-      }
-      .err {
-        color: #ff6b6b;
-        font-size: 14px;
-        min-height: 18px;
-      }
-      .subtitle {
-        color: #cfc4e8;
-      }
-      #touch-controls {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        z-index: 20;
-      }
-      #joy-base {
-        position: absolute;
-        left: 36px;
-        bottom: 60px;
-        width: 140px;
-        height: 140px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.12);
-        border: 2px solid rgba(255, 255, 255, 0.35);
-        pointer-events: auto;
-        touch-action: none;
-      }
-      #joy-stick {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        width: 60px;
-        height: 60px;
-        margin: -30px 0 0 -30px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.45);
-      }
-      #touch-buttons {
-        position: absolute;
-        right: 30px;
-        bottom: 60px;
-        display: flex;
-        gap: 16px;
-        pointer-events: auto;
-      }
-      #touch-buttons button {
-        width: 76px;
-        height: 76px;
-        border-radius: 50%;
-        font-size: 24px;
-        padding: 0;
-        min-height: 0;
-        touch-action: none;
-        user-select: none;
-      }
-      #touch-e {
-        background: #2f9e44;
-        border-color: #7ee081;
-      }
-      #touch-q {
-        background: #3a2f52;
-      }
-      #rotate-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.85);
-        z-index: 70;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        font-size: 22px;
-        padding: 30px;
-      }
-      #game {
-        touch-action: none;
-      }
-      .fs-btn {
-        min-height: 40px;
-        padding: 6px 12px;
-        font-size: 18px;
-      }
-      #btn-fullscreen-global {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        z-index: 40;
-      }
-      #fs-hint {
-        position: absolute;
-        top: 60px;
-        right: 10px;
-        z-index: 40;
-        background: var(--panel);
-        border: 2px solid var(--accent2);
-        border-radius: 8px;
-        padding: 8px 10px;
-        font-size: 12px;
-        max-width: 240px;
-      }
-    </style>
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/buttons.css" />
+    <link rel="stylesheet" href="styles/panels.css" />
+    <link rel="stylesheet" href="styles/hud.css" />
+    <link rel="stylesheet" href="styles/touch.css" />
+    <link rel="stylesheet" href="styles/results.css" />
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles/theme-b.css" />
   </head>
   <body>
     <div id="app">
@@ -437,6 +45,7 @@
           />
           <div class="err" id="login-error"></div>
           <button type="submit">▶ Entrar</button>
+          <button id="btn-guest" type="button" class="secondary" style="background:none;border:none;text-decoration:underline;min-height:0;padding:4px;">¿Solo quieres probar? → Invitado</button>
         </form>
       </section>
 
@@ -445,6 +54,7 @@
         <p class="subtitle" id="menu-user"></p>
         <button id="btn-play">▶ Jugar</button>
         <button id="btn-sound" class="secondary">🔊 Sonido</button>
+        <button id="btn-theme" class="secondary" title="Cambiar estilo de UI">🎨 UI</button>
         <button id="btn-logout" class="secondary">⏻ Salir</button>
       </section>
 
@@ -456,12 +66,18 @@
           <h1 style="font-size: 26px">Elige tu rascador</h1>
         </div>
         <div class="row" id="worlds-row"></div>
-        <h2 id="screens-title" style="font-size: 18px"></h2>
+        <div id="partidas-decor">
+          <img src="assets/book.png" alt="Libro de hechizos" />
+          <h2 id="screens-title" style="font-size: 18px; margin: 0"></h2>
+          <img src="assets/alembic.png" alt="Alambique" />
+        </div>
         <div class="row" id="screens-row"></div>
         <div id="modal-overlay" class="hidden">
           <div id="modal">
             <h2 id="modal-title"></h2>
             <p id="modal-info" class="subtitle"></p>
+            <div id="modal-recipes"></div>
+            <p id="modal-controls" class="subtitle" style="font-size:12px"></p>
             <button id="modal-start">▶ Empezar partida</button>
             <button id="modal-close" class="danger">✖ Cerrar</button>
           </div>
@@ -488,8 +104,10 @@
           <span id="hud-held"></span>
           <span id="hud-time">3:00</span>
           <button id="hud-pause" title="Pausa (Esc/P)">⏸</button>
+          <button id="hud-theme" class="fs-btn" title="Cambiar estilo de UI">🎨</button>
           <button id="btn-fullscreen" class="fs-btn" title="Pantalla completa">⛶</button>
         </div>
+        <div id="hud-timebar"><div id="hud-timebar-fill"></div></div>
         <div id="hud-orders"></div>
         <div id="hud-progress-label" class="hidden"></div>
         <div id="hud-progress" class="hidden"><div></div></div>

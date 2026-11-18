@@ -1,0 +1,161 @@
+:root {
+  --bg: #14101f;
+  --panel: #241a33;
+  --accent: #6d4fc2;
+  --accent2: #9d7bff;
+  --gold: #ffd75e;
+  --text: #e8e2f5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: monospace;
+}
+
+#app {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 12px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+h1 {
+  color: var(--gold);
+  text-shadow: 3px 3px 0 #000;
+  margin: 0;
+}
+
+h2 {
+  color: var(--gold);
+  margin: 0;
+}
+
+input {
+  font-family: monospace;
+  font-size: 16px;
+  padding: 10px;
+  width: min(280px, 82vw);
+  background: #1c1626;
+  color: #fff;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+input[type='range'] {
+  width: 260px;
+}
+
+#game {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.err {
+  color: #ff6b6b;
+  font-size: 14px;
+  min-height: 18px;
+}
+
+.subtitle {
+  color: #cfc4e8;
+}
+
+#game {
+  touch-action: none;
+}
+
+#btn-fullscreen-global {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 40;
+}
+
+#fs-hint {
+  position: absolute;
+  top: 60px;
+  right: 10px;
+  z-index: 40;
+  background: var(--panel);
+  border: 2px solid var(--accent2);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  max-width: 240px;
+}
+
+/* En partida el fullscreen vive en el HUD; el global se oculta */
+body.in-game #btn-fullscreen-global {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .screen {
+    padding: 20px;
+  }
+}
+
+/* Ring de tiempo en tickets de pedido */
+.order-card .ring {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  background: conic-gradient(#e8e2f5 360deg, #1c1626 0deg);
+  -webkit-mask: radial-gradient(circle, transparent 55%, #000 56%);
+  mask: radial-gradient(circle, transparent 55%, #000 56%);
+}
+.order-card {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+/* Barra de tiempo global bajo el HUD */
+#hud-timebar {
+  position: absolute;
+  top: 52px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.4);
+}
+#hud-timebar-fill {
+  height: 100%;
+  width: 100%;
+  background: #e8e2f5;
+}

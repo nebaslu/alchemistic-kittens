@@ -42,6 +42,7 @@ export class GameScene extends Phaser.Scene {
     score: 0,
     cans: 0,
     timeLeft: 0,
+    timeTotal: 0,
     orders: [],
     held: '',
     hint: '',
@@ -73,7 +74,7 @@ export class GameScene extends Phaser.Scene {
     this.interactDistance = cfg.interaction.distance;
     this.cleanSeconds = cfg.interaction.cleanSeconds;
     this.timeLeft = screenDuration(this.screen.id);
-    this.hint = 'Coge un ingrediente del puesto superior (E junto a él)';
+    this.hint = 'Coge ingredientes (E) · cocina en el caldero · entrega la poción lista en la ENTREGA de la derecha';
     this.buildFloor();
     const usedIngredients = new Set(
       this.screen.pool.flatMap((d) => RECIPES[d.recipeId].steps),
@@ -126,8 +127,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
+    // Tras endMatch no se toca nada de la escena: el gameover se despacha en diferido
+    // (setTimeout) para no destruir el Phaser.Game dentro de su propio update.
+    if (this.over) return;
     const dt = delta / 1000;
-    if (!this.over) {
+    {
       this.timeLeft -= dt;
       if (this.timeLeft <= 0) {
         this.timeLeft = 0;
@@ -163,6 +167,7 @@ export class GameScene extends Phaser.Scene {
         }
       }
       this.handleInteract(dt);
+      this.updateDeliveryMarker(_time);
       if (Phaser.Input.Keyboard.JustDown(this.keyQ) || touch.qJust) this.dropItem();
       if (
         Phaser.Input.Keyboard.JustDown(this.keyEsc) ||
@@ -248,7 +253,7 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  /** Entrega la poción en el expendedor; puntúa según segundos restantes del pedido. */
+  /** Entrega la poción en la ENTREGA; puntúa según segundos restantes del pedido. */
   private interactCounter(st: Station): void {
     const item = this.player.item;
     if (item?.kind === 'potion' && item.potionId) {
@@ -271,7 +276,7 @@ export class GameScene extends Phaser.Scene {
         this.setHint('Ningún pedido espera esa poción ahora (Q para tirarla)');
       }
     } else {
-      this.setHint('Lleva la poción 🧪 al expendedor 🛒');
+      this.setHint('Lleva la poción 🧪 a la ENTREGA (derecha, bajo la ⭐)');
     }
   }
 
@@ -357,6 +362,16 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /** Pulsa la estrella de la ENTREGA cuando el jugador lleva una poción lista. */
+  private updateDeliveryMarker(time: number): void {
+    const counter = this.stations.find((st) => st.kind === 'counter');
+    if (!counter?.marker) return;
+    const delivering = this.player.item?.kind === 'potion';
+    const pulse = delivering ? 1.25 + Math.sin(time / 120) * 0.18 : 1;
+    counter.marker.setScale(pulse);
+    counter.marker.setAlpha(delivering ? 1 : 0.75);
+  }
+
   private dropItem(): void {
     const item = this.player.item;
     if (!item) return;
@@ -389,16 +404,17 @@ export class GameScene extends Phaser.Scene {
     if (this.over) return;
     this.over = true;
     hideHud();
-    window.dispatchEvent(
-      new CustomEvent('ak:gameover', {
-        detail: {
-          worldId: this.world.id,
-          screenId: this.screen.id,
-          score: this.score,
-          cans: this.cans,
-        },
-      }),
-    );
+    const detail = {
+      worldId: this.world.id,
+      screenId: this.screen.id,
+      score: this.score,
+      cans: this.cans,
+    };
+    // Diferido: onGameOver llama a stopGame() -> game.destroy(); si ocurriera dentro de
+    // update() se podria romper el loop de Phaser y la partida quedaria congelada.
+    window.setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('ak:gameover', { detail }));
+    }, 0);
   }
 
   private setHint(text: string): void {
@@ -410,6 +426,7 @@ export class GameScene extends Phaser.Scene {
     h.score = this.score;
     h.cans = this.cans;
     h.timeLeft = Math.max(0, this.timeLeft);
+    h.timeTotal = screenDuration(this.screen.id);
     h.held = this.player.item ? Player.itemEmoji(this.player.item) : '';
     h.hint = this.hint;
     h.orders = this.orders.active.map((o) => {

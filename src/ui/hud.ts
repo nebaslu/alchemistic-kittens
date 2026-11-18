@@ -12,6 +12,7 @@ export interface HudState {
   score: number;
   cans: number;
   timeLeft: number;
+  timeTotal: number;
   orders: HudOrder[];
   held: string;
   hint: string;
@@ -26,6 +27,7 @@ const $ = (id: string): HTMLElement => document.getElementById(id) as HTMLElemen
 
 interface OrderCardEls {
   root: HTMLElement;
+  ring: HTMLElement;
   main: HTMLElement;
   remaining: HTMLElement;
   fill: HTMLElement;
@@ -45,15 +47,17 @@ export function showHud(): void {
   for (let i = 0; i < 3; i++) {
     const root = document.createElement('div');
     root.className = 'order-card hidden';
+    const ring = document.createElement('span');
+    ring.className = 'ring';
     const main = document.createElement('div');
     const remaining = document.createElement('div');
     const bar = document.createElement('div');
     bar.className = 'bar';
     const fill = document.createElement('div');
     bar.appendChild(fill);
-    root.append(main, remaining, bar);
+    root.append(ring, main, remaining, bar);
     container.appendChild(root);
-    orderCards.push({ root, main, remaining, fill });
+    orderCards.push({ root, ring, main, remaining, fill });
   }
 }
 
@@ -72,6 +76,13 @@ export function updateHud(h: HudState): void {
   const timeEl = $('hud-time');
   timeEl.textContent = `⏱ ${mm}:${ss}`;
   timeEl.classList.toggle('low', s <= 30);
+  const total = Math.max(1, h.timeTotal);
+  const timeBar = $('hud-timebar-fill');
+  if (timeBar) {
+    const r = Math.max(0, Math.min(1, h.timeLeft / total));
+    timeBar.style.width = `${r * 100}%`;
+    timeBar.style.background = r > 0.5 ? '#e8e2f5' : r > 30 / total ? '#f5a623' : '#ff5252';
+  }
   $('hud-held').textContent = h.held ? `🐾 ${h.held}` : '';
   $('hud-hint').textContent = h.hint;
 
@@ -88,6 +99,8 @@ export function updateHud(h: HudState): void {
     const ratio = Math.max(0, Math.min(1, o.timeLeft / o.timeLimit));
     card.fill.style.width = `${ratio * 100}%`;
     card.fill.style.background = ratio > 0.5 ? '#7ee081' : ratio > 0.25 ? '#ffd75e' : '#ff6b6b';
+    const ringColor = ratio > 0.5 ? '#e8e2f5' : ratio > 0.25 ? '#f5a623' : '#ff5252';
+    card.ring.style.background = `conic-gradient(${ringColor} ${ratio * 360}deg, #1c1626 0deg)`;
   }
 
   const label = $('hud-progress-label');
