@@ -224,3 +224,15 @@ body.theme-c .err {
 body.theme-c .subtitle {
   color: #d8c3ee;
 }
+
+/* Escena Gemini (PAUSE) como fondo del overlay de pausa */
+body.theme-c #pause-overlay {
+  background:
+    linear-gradient(rgba(18, 12, 20, 0.55), rgba(18, 12, 20, 0.7)),
+    url('../assets/art/gemini-pause.jpg') center / cover no-repeat;
+}
+body.theme-c #screen-menu {
+  background:
+    linear-gradient(rgba(26, 16, 38, 0.6), rgba(54, 32, 71, 0.85)),
+    url('../assets/art/lumo-hero.png') center / cover no-repeat;
+}

@@ -135,3 +135,25 @@ body.theme-b #hud-timebar {
   top: 52px;
   background: rgba(0, 0, 0, 0.5);
 }
+
+/* --- Arte de la propuesta Lumo (assets-src/Propuesta UXUI Lumo) como fondos --- */
+body.theme-b #screen-menu {
+  background:
+    linear-gradient(rgba(26, 16, 38, 0.55), rgba(26, 16, 38, 0.8)),
+    url('../assets/art/lumo-hero.png') center / cover no-repeat;
+}
+body.theme-b #screen-partidas {
+  background:
+    linear-gradient(rgba(35, 23, 36, 0.78), rgba(35, 23, 36, 0.88)),
+    url('../assets/art/lumo-room.png') center / cover no-repeat;
+}
+body.theme-b #screen-results {
+  background:
+    linear-gradient(rgba(30, 20, 41, 0.7), rgba(30, 20, 41, 0.85)),
+    url('../assets/art/lumo-cauldrons.png') center / cover no-repeat;
+}
+body.theme-b #screen-login {
+  background:
+    linear-gradient(rgba(19, 11, 28, 0.6), rgba(58, 34, 74, 0.75)),
+    url('../assets/art/lumo-kitchen.png') center / cover no-repeat;
+}

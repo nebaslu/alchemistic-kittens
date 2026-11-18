@@ -34,8 +34,14 @@ function show(id: string): void {
 /** Devuelve un nodo DOM con el badge del atún conseguido (sin innerHTML). */
 function medalBadge(medal: Medal | null): HTMLElement {
   const wrap = document.createElement('span');
-  const fish = document.createElement('span');
-  fish.textContent = '🐟';
+  const fish = document.createElement('img');
+  fish.className = 'medal-img';
+  if (medal) {
+    fish.src = `assets/lumo-fish-${medal}.png`;
+    fish.alt = `Atún ${medal}`;
+  } else {
+    fish.style.visibility = 'hidden';
+  }
   wrap.appendChild(fish);
   const label = document.createElement('b');
   if (!medal) {
@@ -347,8 +353,10 @@ function renderResults(
   medalEl.textContent = '';
   if (medal) {
     const color = `#${MEDAL_COLOR[medal].toString(16).padStart(6, '0')}`;
-    const fish = document.createElement('span');
-    fish.textContent = '🐟';
+    const fish = document.createElement('img');
+    fish.className = 'medal-img big';
+    fish.src = `assets/lumo-fish-${medal}.png`;
+    fish.alt = `Atún ${medal}`;
     const b = document.createElement('b');
     b.style.color = color;
     b.textContent = `Atún de ${MEDAL_LABEL[medal]} conseguido`;

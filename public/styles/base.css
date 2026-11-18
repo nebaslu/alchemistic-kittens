@@ -159,3 +159,15 @@ body.in-game #btn-fullscreen-global {
   width: 100%;
   background: #e8e2f5;
 }
+
+/* Medallas (peces en marco) de la propuesta Lumo */
+.medal-img {
+  height: 22px;
+  width: auto;
+  vertical-align: -5px;
+  image-rendering: pixelated;
+}
+.medal-img.big {
+  height: 44px;
+  vertical-align: -12px;
+}
