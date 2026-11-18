@@ -157,15 +157,30 @@ export function initUI(): void {
 }
 
 const THEME_KEY = 'ak-theme';
+/** Temas implementados: A = Kenney UI pack, B = propuesta Lumo (cozy violeta/pergamino), C = propuesta Gemini (pixel madera/pergamino). */
+const THEMES = [
+  { id: 'a', label: 'Kenney' },
+  { id: 'b', label: 'Lumo' },
+  { id: 'c', label: 'Gemini' },
+] as const;
 
 function applyTheme(): void {
-  const theme = localStorage.getItem(THEME_KEY) ?? 'a';
-  document.body.classList.toggle('theme-b', theme === 'b');
+  const stored = localStorage.getItem(THEME_KEY) ?? 'a';
+  const t = THEMES.find((x) => x.id === stored) ?? THEMES[0];
+  document.body.classList.toggle('theme-b', t.id === 'b');
+  document.body.classList.toggle('theme-c', t.id === 'c');
+  for (const id of ['btn-theme', 'hud-theme']) {
+    const el = $(id);
+    el.textContent = id === 'btn-theme' ? '🎨 ' + t.label : '🎨';
+    el.title = `Tema: ${t.label} — clic para cambiar`;
+  }
 }
 
 function toggleTheme(): void {
-  const next = document.body.classList.contains('theme-b') ? 'a' : 'b';
-  localStorage.setItem(THEME_KEY, next);
+  const cur = localStorage.getItem(THEME_KEY) ?? 'a';
+  const i = THEMES.findIndex((t) => t.id === cur);
+  const next = THEMES[(i + 1) % THEMES.length];
+  localStorage.setItem(THEME_KEY, next.id);
   applyTheme();
 }
 
