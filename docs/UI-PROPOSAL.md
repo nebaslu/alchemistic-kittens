@@ -100,3 +100,11 @@ Música 🎵 [slider] % · Efectos 🔔 [slider] % · [✔ Cerrar]. Persiste en 
 - **P0**: nada bloqueante — flujo actual funciona.
 - **P1**: decoración de partidas con props del pack; progreso visible en principal; carga con barra en preload.
 - **P2**: animaciones de transición entre pantallas, tema claro, daltónicos, tutorial contextual en la primera partida.
+
+---
+
+## Temas implementados (botón 🎨 cicla entre ellos, persiste en `localStorage` `ak-theme`)
+
+- **A · Kenney**: pack UI Kenney (border-image) — tema por defecto.
+- **B · Lumo**: propuesta "cozy violet & parchment" de `docs/ui-propuesta-b/` (+ imágenes en `assets-src/Propuesta UXUI Lumo/`) — `public/styles/theme-b.css`.
+- **C · Gemini**: propuesta pixel madera/pergamino con "Press Start 2P" de `assets-src/Propuesta UXUI Gemini/` — `public/styles/theme-c.css`.
